@@ -1,0 +1,507 @@
+{
+  "nodes": [
+    {
+      "id": "DATA::WS-CART-TOTAL",
+      "label": "DataVariable",
+      "name": "WS-CART-TOTAL",
+      "level": "01",
+      "pic": "9(5)V99",
+      "value": "10000.00",
+      "type": "BigDecimal",
+      "usage": "DISPLAY",
+      "redefines": "",
+      "occurs": 1,
+      "section": "WORKING-STORAGE",
+      "line": 9,
+      "file": "BILLING.cbl",
+      "raw": "01  WS-CART-TOTAL        PIC 9(5)V99 VALUE 10000.00."
+    },
+    {
+      "id": "DATA::WS-DISCOUNT-PCT",
+      "label": "DataVariable",
+      "name": "WS-DISCOUNT-PCT",
+      "level": "01",
+      "pic": "99",
+      "value": "10",
+      "type": "long",
+      "usage": "DISPLAY",
+      "redefines": "",
+      "occurs": 1,
+      "section": "WORKING-STORAGE",
+      "line": 10,
+      "file": "BILLING.cbl",
+      "raw": "01  WS-DISCOUNT-PCT      PIC 99      VALUE 10."
+    },
+    {
+      "id": "DATA::WS-DISCOUNT-AMT",
+      "label": "DataVariable",
+      "name": "WS-DISCOUNT-AMT",
+      "level": "01",
+      "pic": "9(5)V99",
+      "value": "00000.00",
+      "type": "BigDecimal",
+      "usage": "DISPLAY",
+      "redefines": "",
+      "occurs": 1,
+      "section": "WORKING-STORAGE",
+      "line": 11,
+      "file": "BILLING.cbl",
+      "raw": "01  WS-DISCOUNT-AMT      PIC 9(5)V99 VALUE 00000.00."
+    },
+    {
+      "id": "DATA::WS-DISCOUNTED-TOTAL",
+      "label": "DataVariable",
+      "name": "WS-DISCOUNTED-TOTAL",
+      "level": "01",
+      "pic": "9(5)V99",
+      "value": "00000.00",
+      "type": "BigDecimal",
+      "usage": "DISPLAY",
+      "redefines": "",
+      "occurs": 1,
+      "section": "WORKING-STORAGE",
+      "line": 12,
+      "file": "BILLING.cbl",
+      "raw": "01  WS-DISCOUNTED-TOTAL  PIC 9(5)V99 VALUE 00000.00."
+    },
+    {
+      "id": "DATA::WS-TAX-RATE",
+      "label": "DataVariable",
+      "name": "WS-TAX-RATE",
+      "level": "01",
+      "pic": "V99",
+      "value": ".08",
+      "type": "BigDecimal",
+      "usage": "DISPLAY",
+      "redefines": "",
+      "occurs": 1,
+      "section": "WORKING-STORAGE",
+      "line": 13,
+      "file": "BILLING.cbl",
+      "raw": "01  WS-TAX-RATE          PIC V99     VALUE .08."
+    },
+    {
+      "id": "DATA::WS-TAX-AMT",
+      "label": "DataVariable",
+      "name": "WS-TAX-AMT",
+      "level": "01",
+      "pic": "9(5)V99",
+      "value": "00000.00",
+      "type": "BigDecimal",
+      "usage": "DISPLAY",
+      "redefines": "",
+      "occurs": 1,
+      "section": "WORKING-STORAGE",
+      "line": 14,
+      "file": "BILLING.cbl",
+      "raw": "01  WS-TAX-AMT           PIC 9(5)V99 VALUE 00000.00."
+    },
+    {
+      "id": "DATA::WS-FINAL-TOTAL",
+      "label": "DataVariable",
+      "name": "WS-FINAL-TOTAL",
+      "level": "01",
+      "pic": "9(5)V99",
+      "value": "00000.00",
+      "type": "BigDecimal",
+      "usage": "DISPLAY",
+      "redefines": "",
+      "occurs": 1,
+      "section": "WORKING-STORAGE",
+      "line": 15,
+      "file": "BILLING.cbl",
+      "raw": "01  WS-FINAL-TOTAL       PIC 9(5)V99 VALUE 00000.00."
+    },
+    {
+      "id": "DATA::WS-DISPLAY-NUM",
+      "label": "DataVariable",
+      "name": "WS-DISPLAY-NUM",
+      "level": "01",
+      "pic": "ZZZ99.99",
+      "value": "",
+      "type": "BigDecimal",
+      "usage": "DISPLAY",
+      "redefines": "",
+      "occurs": 1,
+      "section": "WORKING-STORAGE",
+      "line": 16,
+      "file": "BILLING.cbl",
+      "raw": "01  WS-DISPLAY-NUM       PIC ZZZ99.99."
+    },
+    {
+      "id": "BILLING.cbl::MAIN-RTN",
+      "label": "Chunk",
+      "file": "BILLING.cbl",
+      "name": "MAIN-RTN",
+      "start_line": 19,
+      "end_line": 25,
+      "source": "       MAIN-RTN.\n           DISPLAY \"=== BILLING SYSTEM START ===\".\n           PERFORM CHECKOUT-PARA.\n           DISPLAY \"FINAL INVOICE TOTAL: \" WS-FINAL-TOTAL.\n           DISPLAY \"=== BILLING SYSTEM COMPLETE ===\".\n           STOP RUN.\n",
+      "statements": [
+        {
+          "line": 20,
+          "text": "DISPLAY \"=== BILLING SYSTEM START ===\"",
+          "stmt_type": "DISPLAY",
+          "reads": [],
+          "writes": [],
+          "target_para": "",
+          "thru_para": "",
+          "subprogram": ""
+        },
+        {
+          "line": 21,
+          "text": "PERFORM CHECKOUT-PARA",
+          "stmt_type": "PERFORM",
+          "reads": [],
+          "writes": [],
+          "target_para": "CHECKOUT-PARA",
+          "thru_para": "",
+          "subprogram": ""
+        },
+        {
+          "line": 22,
+          "text": "DISPLAY \"FINAL INVOICE TOTAL: \" WS-FINAL-TOTAL",
+          "stmt_type": "DISPLAY",
+          "reads": [
+            "WS-FINAL-TOTAL"
+          ],
+          "writes": [],
+          "target_para": "",
+          "thru_para": "",
+          "subprogram": ""
+        },
+        {
+          "line": 23,
+          "text": "DISPLAY \"=== BILLING SYSTEM COMPLETE ===\"",
+          "stmt_type": "DISPLAY",
+          "reads": [],
+          "writes": [],
+          "target_para": "",
+          "thru_para": "",
+          "subprogram": ""
+        },
+        {
+          "line": 25,
+          "text": "STOP RUN",
+          "stmt_type": "TERMINAL",
+          "reads": [],
+          "writes": [],
+          "target_para": "",
+          "thru_para": "",
+          "subprogram": ""
+        }
+      ]
+    },
+    {
+      "id": "BILLING.cbl::CHECKOUT-PARA",
+      "label": "Chunk",
+      "file": "BILLING.cbl",
+      "name": "CHECKOUT-PARA",
+      "start_line": 26,
+      "end_line": 33,
+      "source": "       CHECKOUT-PARA.\n           PERFORM APPLY-DISCOUNT-PARA.\n           PERFORM CALCULATE-TAX-PARA.\n           COMPUTE WS-FINAL-TOTAL = WS-DISCOUNTED-TOTAL + WS-TAX-AMT.\n           MOVE WS-FINAL-TOTAL TO WS-DISPLAY-NUM.\n           DISPLAY \"CHECKOUT FINISHED: $\" WS-DISPLAY-NUM.\n",
+      "statements": [
+        {
+          "line": 28,
+          "text": "PERFORM APPLY-DISCOUNT-PARA",
+          "stmt_type": "PERFORM",
+          "reads": [],
+          "writes": [],
+          "target_para": "APPLY-DISCOUNT-PARA",
+          "thru_para": "",
+          "subprogram": ""
+        },
+        {
+          "line": 29,
+          "text": "PERFORM CALCULATE-TAX-PARA",
+          "stmt_type": "PERFORM",
+          "reads": [],
+          "writes": [],
+          "target_para": "CALCULATE-TAX-PARA",
+          "thru_para": "",
+          "subprogram": ""
+        },
+        {
+          "line": 30,
+          "text": "COMPUTE WS-FINAL-TOTAL = WS-DISCOUNTED-TOTAL + WS-TAX-AMT",
+          "stmt_type": "COMPUTE",
+          "reads": [
+            "WS-DISCOUNTED-TOTAL",
+            "WS-TAX-AMT"
+          ],
+          "writes": [
+            "WS-FINAL-TOTAL"
+          ],
+          "target_para": "",
+          "thru_para": "",
+          "subprogram": ""
+        },
+        {
+          "line": 31,
+          "text": "MOVE WS-FINAL-TOTAL TO WS-DISPLAY-NUM",
+          "stmt_type": "MOVE",
+          "reads": [
+            "WS-FINAL-TOTAL"
+          ],
+          "writes": [
+            "WS-DISPLAY-NUM"
+          ],
+          "target_para": "",
+          "thru_para": "",
+          "subprogram": ""
+        },
+        {
+          "line": 33,
+          "text": "DISPLAY \"CHECKOUT FINISHED: $\" WS-DISPLAY-NUM",
+          "stmt_type": "DISPLAY",
+          "reads": [
+            "WS-DISPLAY-NUM"
+          ],
+          "writes": [],
+          "target_para": "",
+          "thru_para": "",
+          "subprogram": ""
+        }
+      ]
+    },
+    {
+      "id": "BILLING.cbl::APPLY-DISCOUNT-PARA",
+      "label": "Chunk",
+      "file": "BILLING.cbl",
+      "name": "APPLY-DISCOUNT-PARA",
+      "start_line": 34,
+      "end_line": 40,
+      "source": "       APPLY-DISCOUNT-PARA.\n           COMPUTE WS-DISCOUNT-AMT = WS-CART-TOTAL * WS-DISCOUNT-PCT / 100.\n           COMPUTE WS-DISCOUNTED-TOTAL = WS-CART-TOTAL - WS-DISCOUNT-AMT.\n           MOVE WS-DISCOUNTED-TOTAL TO WS-DISPLAY-NUM.\n           DISPLAY \"DISCOUNTED SUBTOTAL: $\" WS-DISPLAY-NUM.\n",
+      "statements": [
+        {
+          "line": 36,
+          "text": "COMPUTE WS-DISCOUNT-AMT = WS-CART-TOTAL * WS-DISCOUNT-PCT / 100",
+          "stmt_type": "COMPUTE",
+          "reads": [
+            "WS-CART-TOTAL",
+            "WS-DISCOUNT-PCT"
+          ],
+          "writes": [
+            "WS-DISCOUNT-AMT"
+          ],
+          "target_para": "",
+          "thru_para": "",
+          "subprogram": ""
+        },
+        {
+          "line": 37,
+          "text": "COMPUTE WS-DISCOUNTED-TOTAL = WS-CART-TOTAL - WS-DISCOUNT-AMT",
+          "stmt_type": "COMPUTE",
+          "reads": [
+            "WS-CART-TOTAL",
+            "WS-DISCOUNT-AMT"
+          ],
+          "writes": [
+            "WS-DISCOUNTED-TOTAL"
+          ],
+          "target_para": "",
+          "thru_para": "",
+          "subprogram": ""
+        },
+        {
+          "line": 38,
+          "text": "MOVE WS-DISCOUNTED-TOTAL TO WS-DISPLAY-NUM",
+          "stmt_type": "MOVE",
+          "reads": [
+            "WS-DISCOUNTED-TOTAL"
+          ],
+          "writes": [
+            "WS-DISPLAY-NUM"
+          ],
+          "target_para": "",
+          "thru_para": "",
+          "subprogram": ""
+        },
+        {
+          "line": 40,
+          "text": "DISPLAY \"DISCOUNTED SUBTOTAL: $\" WS-DISPLAY-NUM",
+          "stmt_type": "DISPLAY",
+          "reads": [
+            "WS-DISPLAY-NUM"
+          ],
+          "writes": [],
+          "target_para": "",
+          "thru_para": "",
+          "subprogram": ""
+        }
+      ]
+    },
+    {
+      "id": "BILLING.cbl::CALCULATE-TAX-PARA",
+      "label": "Chunk",
+      "file": "BILLING.cbl",
+      "name": "CALCULATE-TAX-PARA",
+      "start_line": 41,
+      "end_line": 45,
+      "source": "       CALCULATE-TAX-PARA.\n           COMPUTE WS-TAX-AMT = WS-DISCOUNTED-TOTAL * WS-TAX-RATE.\n           MOVE WS-TAX-AMT TO WS-DISPLAY-NUM.\n           DISPLAY \"TAX CALCULATED: $\" WS-DISPLAY-NUM.",
+      "statements": [
+        {
+          "line": 43,
+          "text": "COMPUTE WS-TAX-AMT = WS-DISCOUNTED-TOTAL * WS-TAX-RATE",
+          "stmt_type": "COMPUTE",
+          "reads": [
+            "WS-DISCOUNTED-TOTAL",
+            "WS-TAX-RATE"
+          ],
+          "writes": [
+            "WS-TAX-AMT"
+          ],
+          "target_para": "",
+          "thru_para": "",
+          "subprogram": ""
+        },
+        {
+          "line": 44,
+          "text": "MOVE WS-TAX-AMT TO WS-DISPLAY-NUM",
+          "stmt_type": "MOVE",
+          "reads": [
+            "WS-TAX-AMT"
+          ],
+          "writes": [
+            "WS-DISPLAY-NUM"
+          ],
+          "target_para": "",
+          "thru_para": "",
+          "subprogram": ""
+        },
+        {
+          "line": 45,
+          "text": "DISPLAY \"TAX CALCULATED: $\" WS-DISPLAY-NUM",
+          "stmt_type": "DISPLAY",
+          "reads": [
+            "WS-DISPLAY-NUM"
+          ],
+          "writes": [],
+          "target_para": "",
+          "thru_para": "",
+          "subprogram": ""
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "source": "BILLING.cbl::MAIN-RTN",
+      "target": "BILLING.cbl::CHECKOUT-PARA",
+      "type": "CALLS",
+      "relation": "PERFORMS",
+      "line": 21
+    },
+    {
+      "source": "BILLING.cbl::MAIN-RTN",
+      "target": "DATA::WS-FINAL-TOTAL",
+      "type": "READS",
+      "relation": "READS_DISPLAY",
+      "line": 22
+    },
+    {
+      "source": "BILLING.cbl::CHECKOUT-PARA",
+      "target": "BILLING.cbl::APPLY-DISCOUNT-PARA",
+      "type": "CALLS",
+      "relation": "PERFORMS",
+      "line": 28
+    },
+    {
+      "source": "BILLING.cbl::CHECKOUT-PARA",
+      "target": "BILLING.cbl::CALCULATE-TAX-PARA",
+      "type": "CALLS",
+      "relation": "PERFORMS",
+      "line": 29
+    },
+    {
+      "source": "BILLING.cbl::CHECKOUT-PARA",
+      "target": "DATA::WS-FINAL-TOTAL",
+      "type": "READS",
+      "relation": "READS_MOVE",
+      "line": 31
+    },
+    {
+      "source": "BILLING.cbl::CHECKOUT-PARA",
+      "target": "DATA::WS-DISCOUNTED-TOTAL",
+      "type": "READS",
+      "relation": "READS_COMPUTE",
+      "line": 30
+    },
+    {
+      "source": "BILLING.cbl::CHECKOUT-PARA",
+      "target": "DATA::WS-TAX-AMT",
+      "type": "READS",
+      "relation": "READS_COMPUTE",
+      "line": 30
+    },
+    {
+      "source": "BILLING.cbl::CHECKOUT-PARA",
+      "target": "DATA::WS-DISPLAY-NUM",
+      "type": "READS",
+      "relation": "READS_DISPLAY",
+      "line": 33
+    },
+    {
+      "source": "BILLING.cbl::APPLY-DISCOUNT-PARA",
+      "target": "DATA::WS-DISCOUNT-AMT",
+      "type": "READS",
+      "relation": "READS_COMPUTE",
+      "line": 37
+    },
+    {
+      "source": "BILLING.cbl::APPLY-DISCOUNT-PARA",
+      "target": "DATA::WS-CART-TOTAL",
+      "type": "READS",
+      "relation": "READS_COMPUTE",
+      "line": 36
+    },
+    {
+      "source": "BILLING.cbl::APPLY-DISCOUNT-PARA",
+      "target": "DATA::WS-DISCOUNT-PCT",
+      "type": "READS",
+      "relation": "READS_COMPUTE",
+      "line": 36
+    },
+    {
+      "source": "BILLING.cbl::APPLY-DISCOUNT-PARA",
+      "target": "DATA::WS-DISCOUNTED-TOTAL",
+      "type": "READS",
+      "relation": "READS_MOVE",
+      "line": 38
+    },
+    {
+      "source": "BILLING.cbl::APPLY-DISCOUNT-PARA",
+      "target": "DATA::WS-DISPLAY-NUM",
+      "type": "READS",
+      "relation": "READS_DISPLAY",
+      "line": 40
+    },
+    {
+      "source": "BILLING.cbl::CALCULATE-TAX-PARA",
+      "target": "DATA::WS-TAX-AMT",
+      "type": "READS",
+      "relation": "READS_MOVE",
+      "line": 44
+    },
+    {
+      "source": "BILLING.cbl::CALCULATE-TAX-PARA",
+      "target": "DATA::WS-DISCOUNTED-TOTAL",
+      "type": "READS",
+      "relation": "READS_COMPUTE",
+      "line": 43
+    },
+    {
+      "source": "BILLING.cbl::CALCULATE-TAX-PARA",
+      "target": "DATA::WS-TAX-RATE",
+      "type": "READS",
+      "relation": "READS_COMPUTE",
+      "line": 43
+    },
+    {
+      "source": "BILLING.cbl::CALCULATE-TAX-PARA",
+      "target": "DATA::WS-DISPLAY-NUM",
+      "type": "READS",
+      "relation": "READS_DISPLAY",
+      "line": 45
+    }
+  ]
+}

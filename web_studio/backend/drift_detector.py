@@ -45,13 +45,19 @@ class SemanticDriftDetector:
         if not cobol4j_java:
             cobol4j_java = self._load_cobol4j_java(program_id)
 
-        # Step 3: Compile & Execute AST-generated standalone Java
-        java_result = self._execute_java(class_name, java_source)
+        # Step 3: If the supplied java_source is a libcobj-style (non-standalone) Java,
+        # synthesize a fresh standalone Java from COBOL source for JVM execution.
+        java_for_jvm = java_source
+        if java_source and ("jp.osscons" in java_source or "libcobj" in java_source):
+            java_for_jvm = self._synthesize_standalone_java(program_id, cobol_source)
 
-        # Step 4: Compare Behaviors (COBOL stdout vs AST-Java stdout)
+        # Step 4: Compile & Execute AST-generated standalone Java
+        java_result = self._execute_java(class_name, java_for_jvm)
+
+        # Step 5: Compare Behaviors (COBOL stdout vs AST-Java stdout)
         comparison = self._compare_outputs(cobol_result["stdout"], java_result["stdout"])
 
-        # Step 5: Also compare COBOL 4J Java vs AST Java source for structural notes
+        # Step 6: Also compare COBOL 4J Java vs AST Java source for structural notes
         cobol4j_note = ""
         if cobol4j_java:
             cobol4j_note = (
@@ -60,6 +66,9 @@ class SemanticDriftDetector:
                 "The AST-generated standalone Java must produce identical console output to pass."
             )
 
+        cobol_stdout = cobol_result.get("stdout", "")
+        java_stdout = java_result.get("stdout", "")
+
         # Determine overall behavioral status
         if not java_result["compiled"]:
             status = "JAVA_COMPILATION_FAILED"
@@ -67,7 +76,18 @@ class SemanticDriftDetector:
         elif not cobol_result["success"]:
             status = "COBOL_EXECUTION_FAILED"
             drift_score = 1.0
-        elif comparison["exact_match"] or comparison["numeric_drift_max"] == 0.0:
+        elif cobol_stdout.strip() and not java_stdout.strip():
+            # COBOL produced output but Java produced nothing — definite semantic drift
+            status = "SEMANTIC_DRIFT_DETECTED"
+            drift_score = 1.0
+        elif not cobol_stdout.strip() and not java_stdout.strip():
+            # Both produced no output — cannot confirm equivalence
+            status = "SEMANTIC_DRIFT_DETECTED"
+            drift_score = 1.0
+        elif comparison["exact_match"]:
+            status = "BEHAVIORALLY_EQUIVALENT"
+            drift_score = 0.0
+        elif comparison["numeric_drift_max"] == 0.0 and comparison["line_similarity"] > 0.8:
             status = "BEHAVIORALLY_EQUIVALENT"
             drift_score = 0.0
         elif comparison["numeric_drift_max"] < 0.02:
@@ -96,6 +116,42 @@ class SemanticDriftDetector:
             "cobol4j_reference_note": cobol4j_note,
             "duration_ms": int((time.time() - start_time) * 1000)
         }
+
+    def _synthesize_standalone_java(self, program_id: str, cobol_source: str) -> str:
+        """
+        Synthesizes a standalone Java program from COBOL source using the
+        AST-Guided Neuro-Symbolic synthesizer. Used when the supplied java_source
+        is a libcobj-dependent file that cannot run on a bare JVM.
+        """
+        try:
+            import sys
+            import os
+            sys.path.insert(0, self.base_dir)
+            from web_studio.backend.cobol_ast_parser import CobolASTParser
+            from web_studio.backend.llm_engine import LLMEngine
+
+            parser = CobolASTParser()
+            parsed = parser.parse_cobol_source(f"{program_id}.cbl", cobol_source)
+            engine = LLMEngine()
+            bundle = [
+                {
+                    "id": c["id"],
+                    "type": "chunk",
+                    "source": c.get("source", ""),
+                    "score": 1.0,
+                    "reason": "synthesizer_direct",
+                    "statements": c.get("statements", [])
+                }
+                for c in parsed.get("chunks", [])
+            ]
+            return engine.synthesize_java_from_ast(
+                program_id=program_id,
+                bundle=bundle,
+                constraints=[],
+                all_variables=parsed.get("variables", [])
+            )
+        except Exception as e:
+            return f"// Synthesis error: {e}"
 
     def _load_cobol4j_java(self, program_id: str) -> str:
         """
@@ -130,9 +186,9 @@ class SemanticDriftDetector:
             with open(cbl_path, "w", encoding="utf-8") as f:
                 f.write(source_code)
 
-            # Check format
+            # Check format: for fixed format, use -variable so lines past col 72 are not ignored
             is_free = any(l.strip() and not l.startswith(('*', '/')) and (len(l) < 7 or not l.startswith("      ")) for l in source_code.splitlines())
-            flag_str = "-free" if is_free else ""
+            flag_str = "-free" if is_free else "-variable"
 
             bash_script = (
                 f"cobj {flag_str} '{fname}' && "

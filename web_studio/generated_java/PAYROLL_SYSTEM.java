@@ -4,8 +4,67 @@
 // This standalone Java aims to reproduce identical output without the libcobj runtime dependency.
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 
 public class PAYROLL_SYSTEM {
+
+    // --- HELPER: COBOL PICTURE FORMATTING ---
+    public static String formatPic(BigDecimal val, String pic) {
+        if (val == null) return "";
+        double d = val.doubleValue();
+        int totalLen = pic.length();
+        DecimalFormatSymbols sym = new DecimalFormatSymbols(Locale.US);
+        if (pic.startsWith("$")) {
+            DecimalFormat df = new DecimalFormat("$#,##0.00", sym);
+            String s = df.format(d);
+            if (s.length() < totalLen) {
+                return String.format("%" + totalLen + "s", s);
+            }
+            return s;
+        } else if (pic.toUpperCase().startsWith("Z")) {
+            DecimalFormat df = new DecimalFormat("###0.00", sym);
+            String s = df.format(d);
+            if (s.length() < totalLen) {
+                return String.format("%" + totalLen + "s", s);
+            }
+            return s;
+        } else if (pic.toUpperCase().contains("V") && pic.toUpperCase().startsWith("9")) {
+            String[] vParts = pic.toUpperCase().split("V");
+            int intDigits = 1;
+            java.util.regex.Matcher mInt = java.util.regex.Pattern.compile("9\\((\\d+)\\)").matcher(vParts[0]);
+            if (mInt.find()) {
+                intDigits = Integer.parseInt(mInt.group(1));
+            } else {
+                intDigits = vParts[0].length();
+            }
+            int decDigits = 2;
+            if (vParts.length > 1) {
+                java.util.regex.Matcher mDec = java.util.regex.Pattern.compile("9\\((\\d+)\\)").matcher(vParts[1]);
+                if (mDec.find()) {
+                    decDigits = Integer.parseInt(mDec.group(1));
+                } else {
+                    decDigits = vParts[1].length();
+                }
+            }
+            int fmtWidth = intDigits + 1 + decDigits;
+            return String.format(Locale.US, "%0" + fmtWidth + "." + decDigits + "f", d);
+        }
+        return val.toString();
+    }
+
+    public static String formatPic(Object val, String pic) {
+        if (val == null) return "";
+        if (val instanceof BigDecimal) {
+            return formatPic((BigDecimal) val, pic);
+        }
+        try {
+            return formatPic(new BigDecimal(val.toString().trim()), pic);
+        } catch (Exception e) {
+            return String.valueOf(val);
+        }
+    }
 
     // --- DATA DIVISION ITEMS (Exact Precision Mapping) ---
     // COBOL: WS-TOTAL-PAYROLL
@@ -13,7 +72,7 @@ public class PAYROLL_SYSTEM {
     // COBOL: WS-HIGHEST-SALARY
     public BigDecimal wsHighestSalary = BigDecimal.ZERO;
     // COBOL: WS-TOP-EARNER
-    public String wsTopEarner = "";
+    public String wsTopEarner = "                    ";
     // COBOL: WS-EMPLOYEE-COUNT
     public int wsEmployeeCount = 0;
     // COBOL: WS-TAX-RATE
@@ -39,19 +98,19 @@ public class PAYROLL_SYSTEM {
     // COBOL: EMP-ID
     public int empId = 0;
     // COBOL: EMP-NAME
-    public String empName = "";
+    public String empName = "                    ";
     // COBOL: EMP-DEPT
-    public String empDept = "";
+    public String empDept = "               ";
     // COBOL: EMP-BASE-SALARY
     public BigDecimal empBaseSalary = BigDecimal.ZERO;
     // COBOL: EMP-BONUS-RATE
     public BigDecimal empBonusRate = BigDecimal.ZERO;
     // COBOL: OUT-PAYSLIP-HEADER
-    public String outPayslipHeader = "";
+    public String outPayslipHeader = "                                        ";
     // COBOL: OUT-TITLE
-    public String outTitle = "";
+    public String outTitle = "                                        ";
     // COBOL: OUT-SEPARATOR
-    public String outSeparator = "";
+    public String outSeparator = "                                        ";
     // COBOL: OUT-DETAIL-LINE
     public int outDetailLine = 0;
     // COBOL: FILLER
@@ -61,11 +120,11 @@ public class PAYROLL_SYSTEM {
     // COBOL: OUT-NAME-LINE
     public int outNameLine = 0;
     // COBOL: OUT-NAME
-    public String outName = "";
+    public String outName = "                    ";
     // COBOL: OUT-DEPT-LINE
     public int outDeptLine = 0;
     // COBOL: OUT-DEPT
-    public String outDept = "";
+    public String outDept = "               ";
     // COBOL: OUT-SALARY-LINE
     public int outSalaryLine = 0;
     // COBOL: OUT-BASE
@@ -83,9 +142,9 @@ public class PAYROLL_SYSTEM {
     // COBOL: OUT-NET
     public BigDecimal outNet = BigDecimal.ZERO;
     // COBOL: OUT-SUMMARY-HEADER
-    public String outSummaryHeader = "";
+    public String outSummaryHeader = "                                        ";
     // COBOL: OUT-SUMMARY-TITLE
-    public String outSummaryTitle = "";
+    public String outSummaryTitle = "                                        ";
 
     // --- PROCEDURE DIVISION METHODS ---
     /** Entry point stub — no PROCEDURE DIVISION paragraphs were parsed. */

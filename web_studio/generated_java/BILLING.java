@@ -80,7 +80,7 @@ public class BILLING implements CobolRunnable {
       d2.decimalInit();
 
       b_RETURN_CODE.set((int)0);
-      b_WS_CART_TOTAL.setBytes (str_0_0010000, 7);
+      b_WS_CART_TOTAL.setBytes (str_0_1000000, 7);
       b_WS_DISCOUNT_PCT.setBytes (str_1_10, 2);
       b_WS_DISCOUNT_AMT.fillBytes (48, 7);
       b_WS_DISCOUNTED_TOTAL.fillBytes (48, 7);
@@ -195,7 +195,7 @@ public class BILLING implements CobolRunnable {
               d0.setField (f_WS_CART_TOTAL);
               d2.set (b_WS_DISCOUNT_PCT.getNumdisp(2));
               d0.mul (d2);
-              d1.set (1);
+              d1.set (100);
               d0.div (d1);
               d0.getField (f_WS_DISCOUNT_AMT, 4);
             }
@@ -420,7 +420,7 @@ public class BILLING implements CobolRunnable {
   public static final byte[] str_3 = CobolUtil.stringToBytes("=== BILLING SYSTEM START ===");
   public static final byte[] str_2_08 = CobolUtil.stringToBytes("08");
   public static final byte[] str_1_10 = CobolUtil.stringToBytes("10");
-  public static final byte[] str_0_0010000 = CobolUtil.stringToBytes("0010000");
+  public static final byte[] str_0_1000000 = CobolUtil.stringToBytes("1000000");
 
   /* Sections and Labels */
   private final static int l_BILLING = 1;
