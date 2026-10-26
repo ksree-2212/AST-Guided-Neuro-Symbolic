@@ -169,22 +169,22 @@ public class PAYROLL__SYSTEM implements CobolRunnable {
     /* 0000-MAIN-PROCESSING */
     new CobolControl(l_MAIN_SECTION__0000_MAIN_PROCESSING, CobolControl.LabelType.label) {
       public Optional<CobolControl> run() throws CobolRuntimeException, CobolStopRunException {
-        /* payroll_system_corrected.cob:78: DISPLAY */
+        /* payroll_system_corrected.cbl:78: DISPLAY */
         {
           CobolTerminal.display (0, 1, 1, c_1_Initializing);
         }
-        /* payroll_system_corrected.cob:79: PERFORM */
+        /* payroll_system_corrected.cbl:79: PERFORM */
         /* PERFORM 1000-INITIALIZE-DATA */
         CobolControl.perform(contList, l_MAIN_SECTION__1000_INITIALIZE_DATA).run();
-        /* payroll_system_corrected.cob:80: DISPLAY */
+        /* payroll_system_corrected.cbl:80: DISPLAY */
         {
           CobolTerminal.display (0, 1, 1, c_2_Processing);
         }
-        /* payroll_system_corrected.cob:81: DISPLAY */
+        /* payroll_system_corrected.cbl:81: DISPLAY */
         {
           CobolTerminal.display (0, 1, 1, c_3);
         }
-        /* payroll_system_corrected.cob:83: PERFORM */
+        /* payroll_system_corrected.cbl:83: PERFORM */
         b_EMP_IDX.set((int)1);
         for(;;        b_EMP_IDX.set((int)(b_EMP_IDX.intValue() + 1))
 )
@@ -194,14 +194,14 @@ public class PAYROLL__SYSTEM implements CobolRunnable {
           /* PERFORM 2000-PROCESS-EMPLOYEE */
           CobolControl.perform(contList, l_MAIN_SECTION__2000_PROCESS_EMPLOYEE).run();
         }
-        /* payroll_system_corrected.cob:86: PERFORM */
+        /* payroll_system_corrected.cbl:86: PERFORM */
         /* PERFORM 3000-PRINT-SUMMARY */
         CobolControl.perform(contList, l_MAIN_SECTION__3000_PRINT_SUMMARY).run();
-        /* payroll_system_corrected.cob:87: DISPLAY */
+        /* payroll_system_corrected.cbl:87: DISPLAY */
         {
           CobolTerminal.display (0, 1, 1, c_4_System);
         }
-        /* payroll_system_corrected.cob:88: STOP */
+        /* payroll_system_corrected.cbl:88: STOP */
         {
           CobolStopRunException.throwException (b_RETURN_CODE.intValue());
         }
@@ -212,107 +212,107 @@ public class PAYROLL__SYSTEM implements CobolRunnable {
     /* 1000-INITIALIZE-DATA */
     new CobolControl(l_MAIN_SECTION__1000_INITIALIZE_DATA, CobolControl.LabelType.label) {
       public Optional<CobolControl> run() throws CobolRuntimeException, CobolStopRunException {
-        /* payroll_system_corrected.cob:92: MOVE */
+        /* payroll_system_corrected.cbl:92: MOVE */
         {
           b_EMP_ID__EMP_RECORD__EMPLOYEE_TABLE.getSubDataStorage(50 * 0).setBytes (str_10_1001, 4);
         }
-        /* payroll_system_corrected.cob:93: MOVE */
+        /* payroll_system_corrected.cbl:93: MOVE */
         {
           b_EMP_NAME__EMP_RECORD__EMPLOYEE_TABLE.getSubDataStorage(50 * 0).setBytes (str_11_Saketharam, 20);
         }
-        /* payroll_system_corrected.cob:94: MOVE */
+        /* payroll_system_corrected.cbl:94: MOVE */
         {
           b_EMP_DEPT__EMP_RECORD__EMPLOYEE_TABLE.getSubDataStorage(50 * 0).setBytes (str_12_Data, 15);
         }
-        /* payroll_system_corrected.cob:95: MOVE */
+        /* payroll_system_corrected.cbl:95: MOVE */
         {
           b_EMP_BASE_SALARY__EMP_RECORD__EMPLOYEE_TABLE.getSubDataStorage(50 * 0).setBytes (str_13_08500000, 8);
         }
-        /* payroll_system_corrected.cob:96: MOVE */
+        /* payroll_system_corrected.cbl:96: MOVE */
         {
           b_EMP_BONUS_RATE__EMP_RECORD__EMPLOYEE_TABLE.getSubDataStorage(50 * 0).setBytes (str_14_125, 3);
         }
-        /* payroll_system_corrected.cob:98: MOVE */
+        /* payroll_system_corrected.cbl:98: MOVE */
         {
           b_EMP_ID__EMP_RECORD__EMPLOYEE_TABLE.getSubDataStorage(50 * 1).setBytes (str_15_1002, 4);
         }
-        /* payroll_system_corrected.cob:99: MOVE */
+        /* payroll_system_corrected.cbl:99: MOVE */
         {
           b_EMP_NAME__EMP_RECORD__EMPLOYEE_TABLE.getSubDataStorage(50 * 1).setBytes (str_16_Alice, 20);
         }
-        /* payroll_system_corrected.cob:100: MOVE */
+        /* payroll_system_corrected.cbl:100: MOVE */
         {
           b_EMP_DEPT__EMP_RECORD__EMPLOYEE_TABLE.getSubDataStorage(50 * 1).setBytes (str_17_Engineering, 15);
         }
-        /* payroll_system_corrected.cob:101: MOVE */
+        /* payroll_system_corrected.cbl:101: MOVE */
         {
           b_EMP_BASE_SALARY__EMP_RECORD__EMPLOYEE_TABLE.getSubDataStorage(50 * 1).setBytes (str_18_07500000, 8);
         }
-        /* payroll_system_corrected.cob:102: MOVE */
+        /* payroll_system_corrected.cbl:102: MOVE */
         {
           b_EMP_BONUS_RATE__EMP_RECORD__EMPLOYEE_TABLE.getSubDataStorage(50 * 1).setBytes (str_19_125, 3);
         }
-        /* payroll_system_corrected.cob:104: MOVE */
+        /* payroll_system_corrected.cbl:104: MOVE */
         {
           b_EMP_ID__EMP_RECORD__EMPLOYEE_TABLE.getSubDataStorage(50 * 2).setBytes (str_20_1003, 4);
         }
-        /* payroll_system_corrected.cob:105: MOVE */
+        /* payroll_system_corrected.cbl:105: MOVE */
         {
           b_EMP_NAME__EMP_RECORD__EMPLOYEE_TABLE.getSubDataStorage(50 * 2).setBytes (str_21_Bob, 20);
         }
-        /* payroll_system_corrected.cob:106: MOVE */
+        /* payroll_system_corrected.cbl:106: MOVE */
         {
           b_EMP_DEPT__EMP_RECORD__EMPLOYEE_TABLE.getSubDataStorage(50 * 2).setBytes (str_22_Marketing, 15);
         }
-        /* payroll_system_corrected.cob:107: MOVE */
+        /* payroll_system_corrected.cbl:107: MOVE */
         {
           b_EMP_BASE_SALARY__EMP_RECORD__EMPLOYEE_TABLE.getSubDataStorage(50 * 2).setBytes (str_23_06200000, 8);
         }
-        /* payroll_system_corrected.cob:108: MOVE */
+        /* payroll_system_corrected.cbl:108: MOVE */
         {
           b_EMP_BONUS_RATE__EMP_RECORD__EMPLOYEE_TABLE.getSubDataStorage(50 * 2).setBytes (str_24_080, 3);
         }
-        /* payroll_system_corrected.cob:110: MOVE */
+        /* payroll_system_corrected.cbl:110: MOVE */
         {
           b_EMP_ID__EMP_RECORD__EMPLOYEE_TABLE.getSubDataStorage(50 * 3).setBytes (str_25_1004, 4);
         }
-        /* payroll_system_corrected.cob:111: MOVE */
+        /* payroll_system_corrected.cbl:111: MOVE */
         {
           b_EMP_NAME__EMP_RECORD__EMPLOYEE_TABLE.getSubDataStorage(50 * 3).setBytes (str_26_Charlie, 20);
         }
-        /* payroll_system_corrected.cob:112: MOVE */
+        /* payroll_system_corrected.cbl:112: MOVE */
         {
           b_EMP_DEPT__EMP_RECORD__EMPLOYEE_TABLE.getSubDataStorage(50 * 3).setBytes (str_27_Sales, 15);
         }
-        /* payroll_system_corrected.cob:113: MOVE */
+        /* payroll_system_corrected.cbl:113: MOVE */
         {
           b_EMP_BASE_SALARY__EMP_RECORD__EMPLOYEE_TABLE.getSubDataStorage(50 * 3).setBytes (str_28_05400000, 8);
         }
-        /* payroll_system_corrected.cob:114: MOVE */
+        /* payroll_system_corrected.cbl:114: MOVE */
         {
           b_EMP_BONUS_RATE__EMP_RECORD__EMPLOYEE_TABLE.getSubDataStorage(50 * 3).setBytes (str_29_080, 3);
         }
-        /* payroll_system_corrected.cob:116: MOVE */
+        /* payroll_system_corrected.cbl:116: MOVE */
         {
           b_EMP_ID__EMP_RECORD__EMPLOYEE_TABLE.getSubDataStorage(50 * 4).setBytes (str_30_1005, 4);
         }
-        /* payroll_system_corrected.cob:117: MOVE */
+        /* payroll_system_corrected.cbl:117: MOVE */
         {
           b_EMP_NAME__EMP_RECORD__EMPLOYEE_TABLE.getSubDataStorage(50 * 4).setBytes (str_31_Diana, 20);
         }
-        /* payroll_system_corrected.cob:118: MOVE */
+        /* payroll_system_corrected.cbl:118: MOVE */
         {
           b_EMP_DEPT__EMP_RECORD__EMPLOYEE_TABLE.getSubDataStorage(50 * 4).setBytes (str_32_HR, 15);
         }
-        /* payroll_system_corrected.cob:119: MOVE */
+        /* payroll_system_corrected.cbl:119: MOVE */
         {
           b_EMP_BASE_SALARY__EMP_RECORD__EMPLOYEE_TABLE.getSubDataStorage(50 * 4).setBytes (str_33_06800000, 8);
         }
-        /* payroll_system_corrected.cob:120: MOVE */
+        /* payroll_system_corrected.cbl:120: MOVE */
         {
           b_EMP_BONUS_RATE__EMP_RECORD__EMPLOYEE_TABLE.getSubDataStorage(50 * 4).setBytes (str_34_080, 3);
         }
-        /* payroll_system_corrected.cob:122: MOVE */
+        /* payroll_system_corrected.cbl:122: MOVE */
         {
           b_WS_EMPLOYEE_COUNT.setBytes (str_35_005, 3);
         }
@@ -323,7 +323,7 @@ public class PAYROLL__SYSTEM implements CobolRunnable {
     /* 2000-PROCESS-EMPLOYEE */
     new CobolControl(l_MAIN_SECTION__2000_PROCESS_EMPLOYEE, CobolControl.LabelType.label) {
       public Optional<CobolControl> run() throws CobolRuntimeException, CobolStopRunException {
-        /* payroll_system_corrected.cob:126: COMPUTE */
+        /* payroll_system_corrected.cbl:126: COMPUTE */
         {
           {
             {
@@ -334,7 +334,7 @@ public class PAYROLL__SYSTEM implements CobolRunnable {
             }
           }
         }
-        /* payroll_system_corrected.cob:129: COMPUTE */
+        /* payroll_system_corrected.cbl:129: COMPUTE */
         {
           {
             {
@@ -345,7 +345,7 @@ public class PAYROLL__SYSTEM implements CobolRunnable {
             }
           }
         }
-        /* payroll_system_corrected.cob:133: COMPUTE */
+        /* payroll_system_corrected.cbl:133: COMPUTE */
         {
           {
             {
@@ -356,7 +356,7 @@ public class PAYROLL__SYSTEM implements CobolRunnable {
             }
           }
         }
-        /* payroll_system_corrected.cob:135: COMPUTE */
+        /* payroll_system_corrected.cbl:135: COMPUTE */
         {
           {
             {
@@ -367,105 +367,105 @@ public class PAYROLL__SYSTEM implements CobolRunnable {
             }
           }
         }
-        /* payroll_system_corrected.cob:139: ADD */
+        /* payroll_system_corrected.cbl:139: ADD */
         {
           f_WS_TOTAL_PAYROLL.add (f_WS_CALC_NET, 4);
         }
-        /* payroll_system_corrected.cob:140: IF */
+        /* payroll_system_corrected.cbl:140: IF */
         {
           if (((long)b_WS_CALC_NET.memcmp (b_WS_HIGHEST_SALARY, 8) >  0L))
             {
-              /* payroll_system_corrected.cob:141: MOVE */
+              /* payroll_system_corrected.cbl:141: MOVE */
               {
                 b_WS_HIGHEST_SALARY.setBytes (b_WS_CALC_NET, 8);
               }
-              /* payroll_system_corrected.cob:142: MOVE */
+              /* payroll_system_corrected.cbl:142: MOVE */
               {
                 b_WS_TOP_EARNER.setBytes (b_EMP_NAME__EMP_RECORD__EMPLOYEE_TABLE.getSubDataStorage(50 * (b_EMP_IDX.intValue() - 1)), 20);
               }
             }
         }
-        /* payroll_system_corrected.cob:146: MOVE */
+        /* payroll_system_corrected.cbl:146: MOVE */
         {
           b_OUT_ID__OUT_DETAIL_LINE.setBytes (b_EMP_ID__EMP_RECORD__EMPLOYEE_TABLE.getSubDataStorage(50 * (b_EMP_IDX.intValue() - 1)), 4);
         }
-        /* payroll_system_corrected.cob:147: MOVE */
+        /* payroll_system_corrected.cbl:147: MOVE */
         {
           b_OUT_NAME__OUT_NAME_LINE.setBytes (b_EMP_NAME__EMP_RECORD__EMPLOYEE_TABLE.getSubDataStorage(50 * (b_EMP_IDX.intValue() - 1)), 20);
         }
-        /* payroll_system_corrected.cob:148: MOVE */
+        /* payroll_system_corrected.cbl:148: MOVE */
         {
           b_OUT_DEPT__OUT_DEPT_LINE.setBytes (b_EMP_DEPT__EMP_RECORD__EMPLOYEE_TABLE.getSubDataStorage(50 * (b_EMP_IDX.intValue() - 1)), 15);
         }
-        /* payroll_system_corrected.cob:149: MOVE */
+        /* payroll_system_corrected.cbl:149: MOVE */
         {
           f_OUT_BASE__OUT_SALARY_LINE.moveFrom (CobolFieldFactory.makeCobolField(8, b_EMP_BASE_SALARY__EMP_RECORD__EMPLOYEE_TABLE.getSubDataStorage(50 * (b_EMP_IDX.intValue() - 1)), a_4_NumericDisplay_Digits8_Scale2));
         }
-        /* payroll_system_corrected.cob:150: MOVE */
+        /* payroll_system_corrected.cbl:150: MOVE */
         {
           f_OUT_BONUS__OUT_BONUS_LINE.moveFrom (f_WS_CALC_BONUS);
         }
-        /* payroll_system_corrected.cob:151: MOVE */
+        /* payroll_system_corrected.cbl:151: MOVE */
         {
           f_OUT_TAX__OUT_TAX_LINE.moveFrom (f_WS_CALC_TAX);
         }
-        /* payroll_system_corrected.cob:152: MOVE */
+        /* payroll_system_corrected.cbl:152: MOVE */
         {
           f_OUT_NET__OUT_NET_LINE.moveFrom (f_WS_CALC_NET);
         }
-        /* payroll_system_corrected.cob:155: DISPLAY */
+        /* payroll_system_corrected.cbl:155: DISPLAY */
         {
           CobolTerminal.display (0, 1, 1, f_OUT_PAYSLIP_HEADER);
         }
-        /* payroll_system_corrected.cob:156: DISPLAY */
+        /* payroll_system_corrected.cbl:156: DISPLAY */
         {
           CobolTerminal.display (0, 1, 1, f_OUT_TITLE);
         }
-        /* payroll_system_corrected.cob:157: DISPLAY */
+        /* payroll_system_corrected.cbl:157: DISPLAY */
         {
           CobolTerminal.display (0, 1, 1, f_OUT_PAYSLIP_HEADER);
         }
-        /* payroll_system_corrected.cob:158: DISPLAY */
+        /* payroll_system_corrected.cbl:158: DISPLAY */
         {
           CobolTerminal.display (0, 1, 1, f_OUT_DETAIL_LINE);
         }
-        /* payroll_system_corrected.cob:159: DISPLAY */
+        /* payroll_system_corrected.cbl:159: DISPLAY */
         {
           CobolTerminal.display (0, 1, 1, f_OUT_NAME_LINE);
         }
-        /* payroll_system_corrected.cob:160: DISPLAY */
+        /* payroll_system_corrected.cbl:160: DISPLAY */
         {
           CobolTerminal.display (0, 1, 1, f_OUT_DEPT_LINE);
         }
-        /* payroll_system_corrected.cob:161: DISPLAY */
+        /* payroll_system_corrected.cbl:161: DISPLAY */
         {
           CobolTerminal.display (0, 1, 1, f_OUT_SEPARATOR);
         }
-        /* payroll_system_corrected.cob:162: DISPLAY */
+        /* payroll_system_corrected.cbl:162: DISPLAY */
         {
           CobolTerminal.display (0, 1, 1, f_OUT_SALARY_LINE);
         }
-        /* payroll_system_corrected.cob:163: DISPLAY */
+        /* payroll_system_corrected.cbl:163: DISPLAY */
         {
           CobolTerminal.display (0, 1, 1, f_OUT_BONUS_LINE);
         }
-        /* payroll_system_corrected.cob:164: DISPLAY */
+        /* payroll_system_corrected.cbl:164: DISPLAY */
         {
           CobolTerminal.display (0, 1, 1, f_OUT_TAX_LINE);
         }
-        /* payroll_system_corrected.cob:165: DISPLAY */
+        /* payroll_system_corrected.cbl:165: DISPLAY */
         {
           CobolTerminal.display (0, 1, 1, f_OUT_SEPARATOR);
         }
-        /* payroll_system_corrected.cob:166: DISPLAY */
+        /* payroll_system_corrected.cbl:166: DISPLAY */
         {
           CobolTerminal.display (0, 1, 1, f_OUT_NET_LINE);
         }
-        /* payroll_system_corrected.cob:167: DISPLAY */
+        /* payroll_system_corrected.cbl:167: DISPLAY */
         {
           CobolTerminal.display (0, 1, 1, f_OUT_PAYSLIP_HEADER);
         }
-        /* payroll_system_corrected.cob:168: DISPLAY */
+        /* payroll_system_corrected.cbl:168: DISPLAY */
         {
           CobolTerminal.display (0, 1, 1, c_3);
         }
@@ -476,51 +476,51 @@ public class PAYROLL__SYSTEM implements CobolRunnable {
     /* 3000-PRINT-SUMMARY */
     new CobolControl(l_MAIN_SECTION__3000_PRINT_SUMMARY, CobolControl.LabelType.label) {
       public Optional<CobolControl> run() throws CobolRuntimeException, CobolStopRunException {
-        /* payroll_system_corrected.cob:171: DISPLAY */
+        /* payroll_system_corrected.cbl:171: DISPLAY */
         {
           CobolTerminal.display (0, 1, 1, f_OUT_SUMMARY_HEADER);
         }
-        /* payroll_system_corrected.cob:172: DISPLAY */
+        /* payroll_system_corrected.cbl:172: DISPLAY */
         {
           CobolTerminal.display (0, 1, 1, f_OUT_SUMMARY_TITLE);
         }
-        /* payroll_system_corrected.cob:173: DISPLAY */
+        /* payroll_system_corrected.cbl:173: DISPLAY */
         {
           CobolTerminal.display (0, 1, 1, f_OUT_SUMMARY_HEADER);
         }
-        /* payroll_system_corrected.cob:174: MOVE */
+        /* payroll_system_corrected.cbl:174: MOVE */
         {
           f_WS_DISP_COUNT.moveFrom (f_WS_EMPLOYEE_COUNT);
         }
-        /* payroll_system_corrected.cob:175: DISPLAY */
+        /* payroll_system_corrected.cbl:175: DISPLAY */
         {
           CobolTerminal.display (0, 1, 2, c_5_Total, f_WS_DISP_COUNT);
         }
-        /* payroll_system_corrected.cob:176: MOVE */
+        /* payroll_system_corrected.cbl:176: MOVE */
         {
           f_WS_DISP_TOTAL.moveFrom (f_WS_TOTAL_PAYROLL);
         }
-        /* payroll_system_corrected.cob:177: DISPLAY */
+        /* payroll_system_corrected.cbl:177: DISPLAY */
         {
           CobolTerminal.display (0, 1, 2, c_6_Total, f_WS_DISP_TOTAL);
         }
-        /* payroll_system_corrected.cob:178: DISPLAY */
+        /* payroll_system_corrected.cbl:178: DISPLAY */
         {
           CobolTerminal.display (0, 1, 2, c_7_Highest, f_WS_TOP_EARNER);
         }
-        /* payroll_system_corrected.cob:179: MOVE */
+        /* payroll_system_corrected.cbl:179: MOVE */
         {
           f_WS_DISP_HIGH.moveFrom (f_WS_HIGHEST_SALARY);
         }
-        /* payroll_system_corrected.cob:180: DISPLAY */
+        /* payroll_system_corrected.cbl:180: DISPLAY */
         {
           CobolTerminal.display (0, 1, 2, c_8_Highest, f_WS_DISP_HIGH);
         }
-        /* payroll_system_corrected.cob:181: DISPLAY */
+        /* payroll_system_corrected.cbl:181: DISPLAY */
         {
           CobolTerminal.display (0, 1, 1, f_OUT_SUMMARY_HEADER);
         }
-        /* payroll_system_corrected.cob:182: DISPLAY */
+        /* payroll_system_corrected.cbl:182: DISPLAY */
         {
           CobolTerminal.display (0, 1, 1, c_3);
         }

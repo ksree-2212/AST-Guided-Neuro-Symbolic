@@ -82,25 +82,29 @@ The assembled context eliminates hallucination risks by passing exact symbolic s
 
 ```
 .
-├── web_studio/                     # Neuro-Symbolic Migration Studio
+├── web_studio/                     # AST-Guided Neuro-Symbolic Migration Studio
 │   ├── backend/                    # FastAPI server & AI engines
-│   │   ├── cobol_ast_parser.py     # Hierarchical COBOL AST parser
-│   │   ├── neuro_symbolic_rag.py   # Dual-Memory Vector & Graph RAG
+│   │   ├── cobol_ast_parser.py     # Tree-sitter & AST parser (Divisions, Copybooks, Def-Use)
+│   │   ├── neuro_symbolic_rag.py   # ChromaDB MiniLM Vector Store & NetworkX Graph Engine
+│   │   ├── llm_engine.py           # Multi-provider LLM (Ollama/OpenAI/Gemini) & AST Synthesizer
+│   │   ├── constraint_verifier.py  # javalang AST structural constraint verification
+│   │   ├── drift_detector.py       # Cross-platform validation (Docker COBOL vs JVM Java)
+│   │   ├── research_evaluator.py   # 3-way benchmark evaluation (Baseline A, B vs Proposed)
 │   │   └── server.py               # REST API endpoints & static server
 │   ├── frontend/                   # Interactive studio interface
-│   │   ├── index.html              # Responsive 3-pane workbench UI
+│   │   ├── index.html              # Responsive 6-tab workbench UI
 │   │   ├── style.css               # Modern dark theme design system
 │   │   └── app.js                  # Dynamic graph rendering & event logic
-│   ├── samples/                    # Preloaded COBOL benchmark programs
-│   └── generated_java/             # Transpiled Java output targets
+│   ├── samples/                    # Preloaded COBOL benchmark programs (BILLING, PAYROLL, etc.)
+│   ├── tests/                      # Automated End-to-End Test Suite (test_e2e_pipeline.py)
+│   └── generated_java/             # Transpiled and synthesized Java output targets
 │
-├── cobj/                           # Core COBOL compiler & code generator (C)
+├── cobj/                           # Core opensourcecobol4j compiler & code generator (C)
 ├── libcobj/                        # Standard COBOL runtime library for Java
 ├── bin/                            # Binary utilities & drivers
 ├── config/                         # Compiler configuration files
 ├── copy/                           # Standard copybooks
 ├── win/                            # Windows Visual Studio solutions
-│   └── AST-Guided-Neuro-Symbolic.sln  # Visual Studio Solution
 └── tests/                          # Validation test suites (NIST & COBOL85)
 ```
 
@@ -110,15 +114,14 @@ The assembled context eliminates hallucination risks by passing exact symbolic s
 
 ### Option A: Launch the Web Studio (Python / Web UI)
 
-1. **Clone the repository:**
+1. **Install Python dependencies:**
    ```bash
-   git clone https://github.com/ksree-2212/AST-Guided-Neuro-Symbolic.git
-   cd AST-Guided-Neuro-Symbolic
+   pip install fastapi uvicorn networkx numpy chromadb tree-sitter==0.21.3 tree-sitter-languages javalang httpx
    ```
 
-2. **Install Python dependencies:**
+2. **Run the End-to-End Test Suite:**
    ```bash
-   pip install fastapi uvicorn networkx numpy
+   python -m unittest web_studio.tests.test_e2e_pipeline
    ```
 
 3. **Start the backend server:**

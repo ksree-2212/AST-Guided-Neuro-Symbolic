@@ -28,10 +28,16 @@
     <div class="header-badges">
       <span class="badge badge-cyan">
         <span class="pulse-dot"></span>
-        opensource COBOL 4J (Docker)
+        COBOL 4J Docker
       </span>
       <span class="badge badge-emerald">
-        Tree-sitter / AST Graph
+        Tree-sitter AST Graph
+      </span>
+      <span class="badge badge-cyan" style="border-color: rgba(168, 85, 247, 0.4); background: rgba(168, 85, 247, 0.12); color: #c084fc;">
+        ChromaDB (MiniLM-L6-v2)
+      </span>
+      <span class="badge badge-emerald">
+        JVM 27 Host Runner
       </span>
     </div>
 
@@ -169,8 +175,11 @@
 
       <!-- Tab Navigation -->
       <div class="right-pane-tabs">
-        <div class="right-tab active" data-tab="rag">Neuro-Symbolic RAG</div>
-        <div class="right-tab" data-tab="prompt">Constrained Prompt</div>
+        <div class="right-tab active" data-tab="rag">Dual-Memory RAG</div>
+        <div class="right-tab" data-tab="llm">LLM Migration</div>
+        <div class="right-tab" data-tab="constraints">Constraint Verifier</div>
+        <div class="right-tab" data-tab="drift">Semantic Drift</div>
+        <div class="right-tab" data-tab="eval">Research Evaluation</div>
         <div class="right-tab" data-tab="compiler">JVM Live Output</div>
       </div>
 
@@ -183,7 +192,7 @@
           <div id="astProposedCard" class="comparison-card proposed">
             <div class="card-title-row">
               <h4>AST-Guided Neuro-Symbolic RAG</h4>
-              <span class="badge badge-green">Complete</span>
+              <span class="badge badge-green">Ready</span>
             </div>
             <p style="font-size: 11px; color: var(--text-muted);">Run query to inspect recovered dependencies...</p>
           </div>
@@ -202,18 +211,200 @@
           </div>
         </div>
 
-        <!-- Tab 2: Prompt Output -->
-        <div id="tabContentPrompt" style="display: none;">
-          <div style="font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px;">
-            STRUCTURE-CONSTRAINED LLM PROMPT (Section 4.5 & Appendix A)
+        <!-- Tab 2: LLM Migration Generation -->
+        <div id="tabContentLlm" style="display: none; flex-direction: column; gap: 12px;">
+          <div class="control-grid">
+            <div class="control-group">
+              <label for="llmProviderSelect">Synthesis Engine</label>
+              <select id="llmProviderSelect" class="control-select">
+                <option value="deterministic" selected>AST Synthesizer (100% Deterministic)</option>
+                <option value="ollama">Ollama (Local LLM)</option>
+                <option value="openai">OpenAI (GPT-4o)</option>
+                <option value="gemini">Google Gemini (1.5 Flash)</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label for="llmModelInput">Model / Tag</label>
+              <input type="text" id="llmModelInput" class="control-input" value="deterministic" placeholder="e.g. llama3, gpt-4o">
+            </div>
           </div>
-          <pre id="promptOutput" class="prompt-box">// Generated prompt will appear here after running query</pre>
+
+          <div class="control-group" id="apiKeyGroup" style="display: none;">
+            <label for="llmApiKeyInput">API Key (OpenAI / Gemini)</label>
+            <input type="password" id="llmApiKeyInput" class="control-input" placeholder="Enter API Key (or set in environment)">
+          </div>
+
+          <button id="generateMigrationBtn" class="btn btn-primary" style="width: 100%; justify-content: center;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            Generate Target Java Migration
+          </button>
+
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 6px;">
+            <div style="font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">
+              Generated Java Source
+            </div>
+            <div style="display: flex; gap: 6px;">
+              <button id="copyMigratedJavaBtn" class="btn btn-secondary" style="padding: 2px 8px; font-size: 11px;">Copy</button>
+              <button id="downloadMigratedJavaBtn" class="btn btn-secondary" style="padding: 2px 8px; font-size: 11px;">Download .java</button>
+            </div>
+          </div>
+
+          <pre id="migratedJavaOutput" class="prompt-box" style="min-height: 200px; max-height: 280px;">// Click "Generate Target Java Migration" above to synthesize Java code</pre>
+
+          <details style="background: rgba(15, 23, 42, 0.5); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 8px;">
+            <summary style="font-size: 11px; font-weight: 600; color: var(--text-dim); cursor: pointer;">View Structure-Constrained LLM Prompt</summary>
+            <pre id="promptOutput" class="prompt-box" style="margin-top: 8px; max-height: 200px;">// Prompt will appear here after search or generation</pre>
+          </details>
         </div>
 
-        <!-- Tab 3: Compiler Execution Terminal -->
+        <!-- Tab 3: Constraint Verification -->
+        <div id="tabContentConstraints" style="display: none; flex-direction: column; gap: 12px;">
+          <button id="runVerifyConstraintsBtn" class="btn btn-primary" style="width: 100%; justify-content: center;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Verify AST Structural Constraints
+          </button>
+
+          <div class="gauge-card">
+            <div class="gauge-header">
+              <span class="gauge-label">Structural AST Compliance</span>
+              <span id="constraintScoreVal" class="gauge-val" style="color: var(--accent-emerald);">0.0%</span>
+            </div>
+            <div class="score-bar-container">
+              <div id="constraintScoreBar" class="score-bar-fill" style="width: 0%;"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+              <span style="font-size: 11px; color: var(--text-dim);">Status</span>
+              <span id="constraintStatusPill" class="status-pill warning">Not Run</span>
+            </div>
+          </div>
+
+          <div style="font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">
+            Verified Methods &amp; Call Edges
+          </div>
+          <div id="verifiedMethodsList" style="background: rgba(15, 23, 42, 0.5); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); font-family: var(--font-mono); font-size: 11px;">
+            <span style="color: var(--text-dim);">Click Verify to inspect method signatures</span>
+          </div>
+
+          <div style="font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">
+            Declared Data Fields (01-88)
+          </div>
+          <div id="verifiedVariablesList" style="background: rgba(15, 23, 42, 0.5); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); font-family: var(--font-mono); font-size: 11px;">
+            <span style="color: var(--text-dim);">Click Verify to inspect variables</span>
+          </div>
+
+          <div id="constraintViolationsContainer" style="display: none;">
+            <div style="font-size: 11px; font-weight: 600; color: var(--accent-rose); text-transform: uppercase;">
+              Detected Violations
+            </div>
+            <div id="constraintViolationsList" style="background: rgba(244, 63, 94, 0.1); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid rgba(244, 63, 94, 0.3); font-family: var(--font-mono); font-size: 11px; color: #fca5a5;">
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 4: Semantic Drift Detection -->
+        <div id="tabContentDrift" style="display: none; flex-direction: column; gap: 12px;">
+          <button id="runDetectDriftBtn" class="btn btn-emerald" style="width: 100%; justify-content: center;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            Detect Semantic Drift (COBOL Docker vs JVM)
+          </button>
+
+          <!-- COBOL 4J Reference Note -->
+          <div id="cobol4jReferenceNote" style="display:none; font-size:11px; padding: 8px 12px; border-radius: var(--radius-sm); background: rgba(99,102,241,0.10); border: 1px solid rgba(99,102,241,0.35); color: #a5b4fc; line-height: 1.5;">
+            <strong style="color:#818cf8;">⚙ COBOL 4J Reference:</strong>
+            PAYROLL__SYSTEM.java (opensourcecobol4j output) is the behavioral ground truth.
+            It depends on <code style="color:#c084fc;">jp.osscons.opensourcecobol.libcobj</code> and is <em>not</em> standalone.
+            The AST-generated Java must produce identical console output to pass.
+          </div>
+
+          <div class="gauge-card">
+            <div class="gauge-header">
+              <span class="gauge-label">Semantic Equivalence</span>
+              <span id="driftStatusPill" class="status-pill warning">Not Run</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-top: 4px;">
+              <span>Drift Score (0.0 = Perfect):</span>
+              <strong id="driftScoreVal" style="font-family: var(--font-mono); color: var(--accent-blue);">--</strong>
+            </div>
+          </div>
+
+          <!-- Dual Terminal: COBOL vs JVM -->
+          <div class="dual-terminal-grid">
+            <div class="terminal-col">
+              <div class="terminal-col-title">COBOL DOCKER STDOUT</div>
+              <div id="cobolDockerOutput" class="terminal-view" style="color: #93c5fd;">// COBOL output</div>
+            </div>
+            <div class="terminal-col">
+              <div class="terminal-col-title">JVM JAVA STDOUT / COMPILE ERRORS</div>
+              <div id="javaJvmOutput" class="terminal-view" style="color: #a7f3d0;">// Java output</div>
+            </div>
+          </div>
+
+          <!-- Numerical Token Comparison -->
+          <div style="font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">
+            Numerical Token Alignment
+          </div>
+          <div style="max-height: 160px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: var(--radius-sm);">
+            <table class="token-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>COBOL</th>
+                  <th>Java</th>
+                  <th>Diff</th>
+                  <th>Result</th>
+                </tr>
+              </thead>
+              <tbody id="tokenDriftTableBody">
+                <tr><td colspan="5" style="text-align: center; color: var(--text-dim);">Run drift analysis to compare numeric tokens</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+
+        <!-- Tab 5: Research Benchmarks -->
+        <div id="tabContentEval" style="display: none; flex-direction: column; gap: 12px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <p style="font-size: 11px; color: var(--text-muted);">
+              3-way empirical evaluation across Baseline A, Baseline B, and Proposed System.
+            </p>
+            <button id="runBenchmarkBtn" class="btn btn-primary" style="padding: 5px 12px; font-size: 11px;">
+              Run Evaluation
+            </button>
+          </div>
+
+          <div id="benchmarkTableContainer" style="overflow-x: auto;">
+            <table class="metrics-table">
+              <thead>
+                <tr>
+                  <th>Strategy</th>
+                  <th>Recall</th>
+                  <th>Missing Dep</th>
+                  <th>Constraints</th>
+                  <th>Compile</th>
+                  <th>Drift</th>
+                </tr>
+              </thead>
+              <tbody id="benchmarkTableBody">
+                <tr><td colspan="6" style="text-align: center; color: var(--text-dim); padding: 14px;">Click "Run Evaluation" to benchmark current program</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div id="benchmarkInsightsBox" class="gauge-card" style="margin-top: 6px;">
+            <div class="gauge-header">
+              <span class="gauge-label" style="color: var(--accent-blue);">Research Findings &amp; Theoretical Guarantees</span>
+            </div>
+            <p style="font-size: 11px; color: var(--text-muted); line-height: 1.5;" id="benchmarkSummaryText">
+              The dual-memory architecture combines dense vector embeddings with deterministic symbol-graph closures to eliminate severed functions and undeclared variable bugs that plague naive RAG systems.
+            </p>
+          </div>
+        </div>
+
+        <!-- Tab 6: Compiler Execution Terminal -->
         <div id="tabContentCompiler" style="display: none;">
           <div style="font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px;">
-            OPENSOURCE COBOL 4J COMPILATION & EXECUTION TERMINAL
+            OPENSOURCE COBOL 4J COMPILATION &amp; EXECUTION TERMINAL
           </div>
           <div id="terminalOutput" class="terminal-view">[READY] Click "Compile & Run" above to compile COBOL to Java bytecode and execute live on JVM.</div>
 
@@ -232,6 +423,7 @@
 
       </div>
     </section>
+
 
   </main>
 

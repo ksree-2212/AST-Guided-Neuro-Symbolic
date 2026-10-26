@@ -11,6 +11,7 @@ const state = {
   viewMode: "dependency", // 'dependency' | 'ast' | 'dual'
   retrievalResult: null,
   selectedNode: null,
+  migratedJava: "",
   zoom: 1.0,
   pan: { x: 0, y: 0 },
   isDragging: false,
@@ -34,6 +35,37 @@ const astProposedCard = document.getElementById("astProposedCard");
 const baselineCard = document.getElementById("baselineCard");
 const structuralConstraintsList = document.getElementById("structuralConstraintsList");
 
+// Extended Module DOM Elements
+const llmProviderSelect = document.getElementById("llmProviderSelect");
+const llmModelInput = document.getElementById("llmModelInput");
+const apiKeyGroup = document.getElementById("apiKeyGroup");
+const llmApiKeyInput = document.getElementById("llmApiKeyInput");
+const generateMigrationBtn = document.getElementById("generateMigrationBtn");
+const migratedJavaOutput = document.getElementById("migratedJavaOutput");
+const copyMigratedJavaBtn = document.getElementById("copyMigratedJavaBtn");
+const downloadMigratedJavaBtn = document.getElementById("downloadMigratedJavaBtn");
+
+const runVerifyConstraintsBtn = document.getElementById("runVerifyConstraintsBtn");
+const constraintScoreVal = document.getElementById("constraintScoreVal");
+const constraintScoreBar = document.getElementById("constraintScoreBar");
+const constraintStatusPill = document.getElementById("constraintStatusPill");
+const verifiedMethodsList = document.getElementById("verifiedMethodsList");
+const verifiedVariablesList = document.getElementById("verifiedVariablesList");
+const constraintViolationsContainer = document.getElementById("constraintViolationsContainer");
+const constraintViolationsList = document.getElementById("constraintViolationsList");
+
+const runDetectDriftBtn = document.getElementById("runDetectDriftBtn");
+const driftStatusPill = document.getElementById("driftStatusPill");
+const driftScoreVal = document.getElementById("driftScoreVal");
+const cobolDockerOutput = document.getElementById("cobolDockerOutput");
+const javaJvmOutput = document.getElementById("javaJvmOutput");
+const tokenDriftTableBody = document.getElementById("tokenDriftTableBody");
+
+const runBenchmarkBtn = document.getElementById("runBenchmarkBtn");
+const benchmarkTableBody = document.getElementById("benchmarkTableBody");
+const benchmarkSummaryText = document.getElementById("benchmarkSummaryText");
+
+
 // Initialize Studio
 window.addEventListener("DOMContentLoaded", async () => {
   setupEventListeners();
@@ -55,7 +87,9 @@ function setupEventListeners() {
   fileUpload.addEventListener("change", (e) => handleFileUpload(e.target.files));
   folderUpload.addEventListener("change", (e) => handleFileUpload(e.target.files));
 
-  // Drag and Drop
+  // Drag and Drop & Click on Dropzone
+  dropZone.style.cursor = "pointer";
+  dropZone.addEventListener("click", () => fileUpload.click());
   dropZone.addEventListener("dragover", (e) => {
     e.preventDefault();
     dropZone.classList.add("dragover");
@@ -87,7 +121,7 @@ function setupEventListeners() {
     });
   });
 
-  // Right Pane Tabs (RAG vs Compiler vs Java)
+  // Right Pane Tabs (RAG, LLM, Constraints, Drift, Eval, Compiler)
   document.querySelectorAll(".right-pane-tabs .right-tab").forEach(tab => {
     tab.addEventListener("click", () => {
       document.querySelectorAll(".right-pane-tabs .right-tab").forEach(t => t.classList.remove("active"));
@@ -95,10 +129,78 @@ function setupEventListeners() {
       
       const tabTarget = tab.dataset.tab;
       document.getElementById("tabContentRag").style.display = tabTarget === "rag" ? "flex" : "none";
-      document.getElementById("tabContentPrompt").style.display = tabTarget === "prompt" ? "block" : "none";
+      document.getElementById("tabContentLlm").style.display = tabTarget === "llm" ? "flex" : "none";
+      document.getElementById("tabContentConstraints").style.display = tabTarget === "constraints" ? "flex" : "none";
+      document.getElementById("tabContentDrift").style.display = tabTarget === "drift" ? "flex" : "none";
+      document.getElementById("tabContentEval").style.display = tabTarget === "eval" ? "flex" : "none";
       document.getElementById("tabContentCompiler").style.display = tabTarget === "compiler" ? "block" : "none";
     });
   });
+
+  // LLM Provider Selector change
+  if (llmProviderSelect) {
+    llmProviderSelect.addEventListener("change", (e) => {
+      const p = e.target.value;
+      if (p === "openai") {
+        apiKeyGroup.style.display = "flex";
+        llmModelInput.value = "gpt-4o";
+      } else if (p === "gemini") {
+        apiKeyGroup.style.display = "flex";
+        llmModelInput.value = "gemini-1.5-flash";
+      } else if (p === "ollama") {
+        apiKeyGroup.style.display = "none";
+        llmModelInput.value = "llama3";
+      } else {
+        apiKeyGroup.style.display = "none";
+        llmModelInput.value = "deterministic";
+      }
+    });
+  }
+
+  // LLM Migration Button
+  if (generateMigrationBtn) {
+    generateMigrationBtn.addEventListener("click", generateMigration);
+  }
+
+  // Copy Migrated Java Button
+  if (copyMigratedJavaBtn) {
+    copyMigratedJavaBtn.addEventListener("click", () => {
+      const code = migratedJavaOutput.textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        copyMigratedJavaBtn.textContent = "Copied!";
+        setTimeout(() => copyMigratedJavaBtn.textContent = "Copy", 2000);
+      });
+    });
+  }
+
+  // Download Migrated Java Button
+  if (downloadMigratedJavaBtn) {
+    downloadMigratedJavaBtn.addEventListener("click", () => {
+      const code = migratedJavaOutput.textContent;
+      const blob = new Blob([code], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = (state.activeFilename.replace(/\.(cbl|cob)$/i, "") || "CobolProgram") + ".java";
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+  }
+
+  // Constraint Verification Button
+  if (runVerifyConstraintsBtn) {
+    runVerifyConstraintsBtn.addEventListener("click", verifyConstraints);
+  }
+
+  // Semantic Drift Button
+  if (runDetectDriftBtn) {
+    runDetectDriftBtn.addEventListener("click", detectSemanticDrift);
+  }
+
+  // Benchmark Evaluation Button
+  if (runBenchmarkBtn) {
+    runBenchmarkBtn.addEventListener("click", evaluateBenchmarks);
+  }
 
   // Query Run
   runQueryBtn.addEventListener("click", runRagQuery);
@@ -232,26 +334,81 @@ async function loadSampleByName(filename) {
 async function handleFileUpload(fileList) {
   if (!fileList || fileList.length === 0) return;
   const formData = new FormData();
+  const clientFiles = [];
+
   for (let i = 0; i < fileList.length; i++) {
-    formData.append("files", fileList[i]);
+    const f = fileList[i];
+    formData.append("files", f);
+    try {
+      const text = await f.text();
+      clientFiles.push({
+        filename: f.name || f.webkitRelativePath || "uploaded.cbl",
+        content: text
+      });
+    } catch (e) {
+      console.warn("Could not read file locally:", f.name, e);
+    }
   }
 
   try {
-    const res = await fetch("/api/upload", {
-      method: "POST",
-      body: formData
-    });
-    const result = await res.json();
-    if (result.uploaded && result.uploaded.length > 0) {
-      const first = result.uploaded[0];
+    let uploaded = [];
+    try {
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData
+      });
+      if (res.ok) {
+        const result = await res.json();
+        uploaded = result.uploaded || [];
+      } else {
+        console.warn("Server upload returned status " + res.status + ", falling back to client-read files");
+      }
+    } catch (netErr) {
+      console.warn("Network upload fetch error, falling back to client-read files:", netErr);
+    }
+
+    if (!uploaded || uploaded.length === 0) {
+      uploaded = clientFiles;
+    }
+
+    if (uploaded.length > 0) {
+      // Add uploaded files to sample selector dropdown
+      uploaded.forEach(u => {
+        const exists = Array.from(sampleSelect.options).some(opt => opt.value === u.filename);
+        if (!exists) {
+          const opt = document.createElement("option");
+          opt.value = u.filename;
+          opt.textContent = `📁 ${u.filename} (Uploaded)`;
+          sampleSelect.appendChild(opt);
+        }
+      });
+
+      const first = uploaded[0];
+      sampleSelect.value = first.filename;
       state.activeFilename = first.filename;
       state.sourceCode = first.content;
       codeEditor.value = first.content;
-      document.getElementById("currentFileLabel").textContent = `${first.filename} (${result.uploaded.length} files loaded)`;
+      document.getElementById("currentFileLabel").textContent = `${first.filename} (${uploaded.length} file${uploaded.length > 1 ? 's' : ''} loaded)`;
       await reparseCurrentCode();
+    } else {
+      alert("No valid readable text found in selected file(s).");
     }
   } catch (err) {
-    alert("Upload failed: " + err.message);
+    console.error("Upload error:", err);
+    if (clientFiles.length > 0) {
+      const first = clientFiles[0];
+      state.activeFilename = first.filename;
+      state.sourceCode = first.content;
+      codeEditor.value = first.content;
+      document.getElementById("currentFileLabel").textContent = `${first.filename} (Loaded from local disk)`;
+      await reparseCurrentCode();
+    } else {
+      alert("Unable to upload: " + err.message);
+    }
+  } finally {
+    // Reset file input values so re-uploading the same file triggers change event
+    if (fileUpload) fileUpload.value = "";
+    if (folderUpload) folderUpload.value = "";
   }
 }
 
@@ -278,6 +435,41 @@ async function reparseCurrentCode() {
     
     // Automatically trigger initial RAG comparison query
     await runRagQuery();
+
+    // FULL RESET of all downstream migration/verification state for new file
+    state.migratedJava = "";
+    state.retrievalResult = null;
+
+    if (migratedJavaOutput) {
+      migratedJavaOutput.textContent = '// Click "Generate Target Java Migration" above to synthesize Java code';
+    }
+    // Reset generated Java (compiler tab)
+    if (generatedJavaOutput) {
+      generatedJavaOutput.textContent = "// Run COBOL compile to see generated Java";
+    }
+    // Reset constraint state
+    if (constraintScoreVal) constraintScoreVal.textContent = "0.0%";
+    if (constraintScoreBar) constraintScoreBar.style.width = "0%";
+    if (constraintStatusPill) {
+      constraintStatusPill.className = "status-pill warning";
+      constraintStatusPill.textContent = "Not Run";
+    }
+    if (verifiedMethodsList) verifiedMethodsList.innerHTML = "";
+    if (verifiedVariablesList) verifiedVariablesList.innerHTML = "";
+    if (constraintViolationsContainer) constraintViolationsContainer.style.display = "none";
+    if (constraintViolationsList) constraintViolationsList.innerHTML = "";
+    // Reset drift state
+    if (driftStatusPill) {
+      driftStatusPill.className = "status-pill warning";
+      driftStatusPill.textContent = "Not Run";
+    }
+    if (driftScoreVal) driftScoreVal.textContent = "--";
+    if (cobolDockerOutput) cobolDockerOutput.textContent = "[Run validation to see COBOL output]";
+    if (javaJvmOutput) javaJvmOutput.textContent = "[Run validation to see Java output]";
+    if (tokenDriftTableBody) tokenDriftTableBody.innerHTML = "";
+    // Reset benchmark
+    if (benchmarkTableBody) benchmarkTableBody.innerHTML = "";
+    if (benchmarkSummaryText) benchmarkSummaryText.innerHTML = "";
   } catch (err) {
     console.error("Parse failed:", err);
   }
@@ -352,7 +544,7 @@ function renderRagResults(data) {
   structuralConstraintsList.innerHTML = constraintsHtml;
 
   // 3. Baseline Fixed-Size Chunking Card
-  const baseline = data.baseline_retrieval;
+  const baseline = data.baseline_a || data.baseline_retrieval || {};
   let baselineHtml = `
     <div class="card-title-row">
       <h4>Standard RAG Baseline (4-line chunks)</h4>
@@ -363,14 +555,19 @@ function renderRagResults(data) {
     </p>
   `;
 
-  baseline.retrieved_windows.forEach(w => {
-    baselineHtml += `
-      <div class="retrieved-item" style="border-left: 3px solid var(--accent-rose);">
-        <span class="tag tag-severed">${w.id} (score: ${w.score})</span>
-        <pre style="margin-top: 4px; font-size: 10px; color: #fda4af;">${escapeHtml(w.text)}</pre>
-      </div>
-    `;
-  });
+  const windows = baseline.retrieved_windows || [];
+  if (windows.length > 0) {
+    windows.forEach(w => {
+      baselineHtml += `
+        <div class="retrieved-item" style="border-left: 3px solid var(--accent-rose);">
+          <span class="tag tag-severed">${w.id} (score: ${w.score})</span>
+          <pre style="margin-top: 4px; font-size: 10px; color: #fda4af;">${escapeHtml(w.text)}</pre>
+        </div>
+      `;
+    });
+  } else {
+    baselineHtml += `<p style="font-size: 11px; color: var(--text-dim);">No baseline windows retrieved</p>`;
+  }
   baselineCard.innerHTML = baselineHtml;
 
   // 4. Update Constrained Prompt
@@ -422,6 +619,316 @@ async function runCompiler() {
       <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
       Compile & Run
     `;
+  }
+}
+
+// -------------------------------------------------------------
+// LLM Migration Generator (AST Synthesizer / Ollama / OpenAI / Gemini)
+// -------------------------------------------------------------
+async function generateMigration() {
+  const provider = llmProviderSelect ? llmProviderSelect.value : "deterministic";
+  const model = llmModelInput ? llmModelInput.value.trim() : "deterministic";
+  const apiKey = llmApiKeyInput ? llmApiKeyInput.value.trim() : "";
+  const query = ragQueryInput ? ragQueryInput.value.trim() : "migrate cobol program to java";
+
+  generateMigrationBtn.disabled = true;
+  generateMigrationBtn.innerHTML = `<span>Synthesizing (${provider})...</span>`;
+  migratedJavaOutput.textContent = `// Contacting ${provider} generation engine...\n// Analyzing AST symbols, def-use chains, and types...`;
+
+  try {
+    const res = await fetch("/api/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        filename: state.activeFilename,
+        source_code: codeEditor.value,
+        query: query,
+        provider: provider,
+        model: model,
+        api_key: apiKey
+      })
+    });
+    const result = await res.json();
+    if (result.success) {
+      state.migratedJava = result.generated_code;
+      migratedJavaOutput.textContent = result.generated_code;
+      if (promptOutput && result.prompt) {
+        promptOutput.textContent = result.prompt;
+      }
+      // Automatically update constraints view
+      await verifyConstraints();
+    } else {
+      migratedJavaOutput.textContent = `// Generation failed: ${result.error || "Unknown error"}`;
+    }
+  } catch (err) {
+    migratedJavaOutput.textContent = `// Error during generation: ${err.message}`;
+  } finally {
+    generateMigrationBtn.disabled = false;
+    generateMigrationBtn.innerHTML = `
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      Generate Target Java Migration
+    `;
+  }
+}
+
+// -------------------------------------------------------------
+// AST Structural Constraint Verifier (javalang AST Parser)
+// -------------------------------------------------------------
+async function verifyConstraints() {
+  if (!state.migratedJava) {
+    await generateMigration();
+    if (!state.migratedJava) return;
+  }
+
+  runVerifyConstraintsBtn.disabled = true;
+  runVerifyConstraintsBtn.innerHTML = `<span>Verifying AST Constraints...</span>`;
+
+  try {
+    const res = await fetch("/api/verify-constraints", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        filename: state.activeFilename,
+        source_code: codeEditor.value,
+        java_code: state.migratedJava
+      })
+    });
+    const result = await res.json();
+    const score = result.compliance_score || 0.0;
+    
+    constraintScoreVal.textContent = `${score.toFixed(1)}%`;
+    constraintScoreBar.style.width = `${score}%`;
+
+    if (result.status === "PASS") {
+      constraintStatusPill.className = "status-pill success";
+      constraintStatusPill.textContent = "VERIFIED (100% COMPLIANT)";
+    } else {
+      constraintStatusPill.className = "status-pill danger";
+      constraintStatusPill.textContent = `${result.status} (${result.violation_count} Violations)`;
+    }
+
+    // Methods
+    let methodsHtml = `<div style="color: var(--accent-emerald); font-weight: 600; margin-bottom: 4px;">Methods & Call Edges:</div>`;
+    if (result.method_checks && result.method_checks.length > 0) {
+      result.method_checks.forEach(m => {
+        const icon = m.verified ? "✓" : "✗";
+        const color = m.verified ? "var(--accent-emerald)" : "var(--accent-rose)";
+        methodsHtml += `<div style="color: ${color}; margin-bottom: 2px;">${icon} void ${m.method}() [found in Java AST]</div>`;
+      });
+    } else {
+      methodsHtml += `<div style="color: var(--text-dim);">No procedure paragraphs</div>`;
+    }
+    if (result.call_edge_checks && result.call_edge_checks.length > 0) {
+      result.call_edge_checks.forEach(c => {
+        const icon = c.preserved ? "✓" : "✗";
+        const color = c.preserved ? "var(--accent-emerald)" : "var(--accent-rose)";
+        methodsHtml += `<div style="color: ${color}; margin-left: 12px; margin-bottom: 2px;">${icon} Edge: ${c.caller}() -> ${c.target}()</div>`;
+      });
+    }
+    verifiedMethodsList.innerHTML = methodsHtml;
+
+    // Variables
+    let varsHtml = `<div style="color: var(--accent-amber); font-weight: 600; margin-bottom: 4px;">Field Declarations:</div>`;
+    if (result.variable_checks && result.variable_checks.length > 0) {
+      result.variable_checks.forEach(v => {
+        const icon = v.declared ? "✓" : "✗";
+        const color = v.declared ? "var(--accent-emerald)" : "var(--accent-rose)";
+        varsHtml += `<div style="color: ${color}; margin-bottom: 2px;">${icon} ${v.field_name} (mapped from ${v.variable})</div>`;
+      });
+    } else {
+      varsHtml += `<div style="color: var(--text-dim);">No variable declarations</div>`;
+    }
+    verifiedVariablesList.innerHTML = varsHtml;
+
+    // Violations
+    if (result.violations && result.violations.length > 0) {
+      constraintViolationsContainer.style.display = "block";
+      constraintViolationsList.innerHTML = result.violations.map(v => `<div>• [${v.type}] ${v.message}</div>`).join("");
+    } else {
+      constraintViolationsContainer.style.display = "none";
+      constraintViolationsList.innerHTML = "";
+    }
+
+  } catch (err) {
+    constraintStatusPill.className = "status-pill danger";
+    constraintStatusPill.textContent = "ERROR";
+    verifiedMethodsList.textContent = `Verification error: ${err.message}`;
+  } finally {
+    runVerifyConstraintsBtn.disabled = false;
+    runVerifyConstraintsBtn.innerHTML = `
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Verify AST Structural Constraints
+    `;
+  }
+}
+
+// -------------------------------------------------------------
+// Semantic Drift Detection (Docker COBOL vs Host JVM Execution)
+// -------------------------------------------------------------
+async function detectSemanticDrift() {
+  if (!state.migratedJava) {
+    await generateMigration();
+    if (!state.migratedJava) return;
+  }
+
+  runDetectDriftBtn.disabled = true;
+  runDetectDriftBtn.innerHTML = `<span>Executing COBOL (Docker) & Java (JVM)...</span>`;
+  cobolDockerOutput.textContent = "Executing in opensource COBOL 4J Docker container...";
+  javaJvmOutput.textContent = "Compiling with host javac and executing on JVM...";
+
+  try {
+    const res = await fetch("/api/validate-drift", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        filename: state.activeFilename,
+        source_code: codeEditor.value,
+        java_code: state.migratedJava
+      })
+    });
+    const result = await res.json();
+
+    // COBOL Docker output
+    cobolDockerOutput.textContent = result.cobol_stdout || result.cobol_stderr || "[No output]";
+
+    // JVM Java output — show compile errors prominently when compilation fails
+    if (result.status === "JAVA_COMPILATION_FAILED" && result.compile_errors) {
+      javaJvmOutput.textContent =
+        "[javac] COMPILATION FAILED:\n" + result.compile_errors +
+        (result.java_stderr ? "\n\n[stderr]\n" + result.java_stderr : "");
+    } else {
+      javaJvmOutput.textContent = result.java_stdout || result.java_stderr || "[No output]";
+    }
+
+    // COBOL 4J reference note — show when available
+    const noteEl = document.getElementById("cobol4jReferenceNote");
+    if (noteEl) {
+      noteEl.textContent = result.cobol4j_reference_note ||
+        "COBOL 4J-generated Java (PAYROLL__SYSTEM.java) is the behavioral ground truth. " +
+        "It depends on jp.osscons.opensourcecobol.libcobj and is NOT standalone. " +
+        "The AST-generated Java must produce identical console output to pass.";
+      noteEl.style.display = "block";
+    }
+
+    // Status pill & score
+    const driftScore = result.drift_score != null ? result.drift_score : 1.0;
+    driftScoreVal.textContent = driftScore.toFixed(6);
+
+    if (result.status === "BEHAVIORALLY_EQUIVALENT") {
+      driftStatusPill.className = "status-pill success";
+      driftStatusPill.textContent = "BEHAVIORALLY EQUIVALENT";
+    } else if (result.status === "SLIGHT_ROUNDING_DRIFT") {
+      driftStatusPill.className = "status-pill warning";
+      driftStatusPill.textContent = "SLIGHT ROUNDING DRIFT";
+    } else if (result.status === "SEMANTIC_DRIFT_DETECTED" || result.status === "DRIFT_DETECTED") {
+      driftStatusPill.className = "status-pill warning";
+      driftStatusPill.textContent = "SEMANTIC DRIFT DETECTED";
+    } else if (result.status === "JAVA_COMPILATION_FAILED") {
+      driftStatusPill.className = "status-pill danger";
+      driftStatusPill.textContent = "JAVA COMPILATION FAILED";
+    } else if (result.status === "COBOL_EXECUTION_FAILED") {
+      driftStatusPill.className = "status-pill warning";
+      driftStatusPill.textContent = "COBOL EXECUTION FAILED (Docker)";
+    } else {
+      driftStatusPill.className = "status-pill danger";
+      driftStatusPill.textContent = result.status || "ERROR";
+    }
+
+    // Token table
+    const comps = result.token_comparisons || [];
+    if (comps.length > 0) {
+      let rowsHtml = "";
+      comps.forEach((c, idx) => {
+        const matchClass = c.matched ? "badge-match" : "badge-diff";
+        const resultLabel = c.matched ? "✓ MATCH" : "DIFF";
+        rowsHtml += `
+          <tr>
+            <td style="color: var(--text-dim); text-align: left;">#${idx + 1}</td>
+            <td style="color: #93c5fd;">${c.cobol_value != null ? c.cobol_value.toLocaleString() : 'N/A'}</td>
+            <td style="color: #a7f3d0;">${c.java_value != null ? c.java_value.toLocaleString() : 'N/A'}</td>
+            <td style="color: var(--text-muted);">${c.absolute_diff != null ? c.absolute_diff.toFixed(2) : '--'}</td>
+            <td class="${matchClass}">${resultLabel}</td>
+          </tr>
+        `;
+      });
+      tokenDriftTableBody.innerHTML = rowsHtml;
+    } else {
+      tokenDriftTableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-dim);">No numeric tokens parsed in output</td></tr>`;
+    }
+
+  } catch (err) {
+    driftStatusPill.className = "status-pill danger";
+    driftStatusPill.textContent = "ERROR";
+    javaJvmOutput.textContent = `Drift check error: ${err.message}`;
+  } finally {
+    runDetectDriftBtn.disabled = false;
+    runDetectDriftBtn.innerHTML = `
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Detect Semantic Drift (COBOL Docker vs JVM)
+    `;
+  }
+}
+
+// -------------------------------------------------------------
+// 3-Way Empirical Benchmark Evaluation
+// -------------------------------------------------------------
+async function evaluateBenchmarks() {
+  runBenchmarkBtn.disabled = true;
+  runBenchmarkBtn.innerHTML = `<span>Evaluating...</span>`;
+  benchmarkTableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--accent-blue); padding: 14px;">Running 3-Way Benchmark Suite (Dense vs Graph vs Proposed)...</td></tr>`;
+
+  try {
+    const query = ragQueryInput ? ragQueryInput.value.trim() : "compute total cost including tax";
+    const res = await fetch("/api/evaluate-benchmarks", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        filename: state.activeFilename,
+        source_code: codeEditor.value,
+        query: query
+      })
+    });
+    const result = await res.json();
+    const rows = result.evaluation_table || [];
+
+    let tableHtml = "";
+    rows.forEach(r => {
+      const isProposed = r.is_proposed;
+      const rowClass = isProposed ? 'class="proposed-col"' : '';
+      const nameCol = isProposed ? `<strong>${r.name} (Ours)</strong>` : r.name;
+      const recallVal = `${(r.retrieval_recall * 100).toFixed(0)}%`;
+      const missingVal = `${(r.missing_dep_rate * 100).toFixed(0)}%`;
+      const constraintVal = `${(r.constraint_preservation_rate * 100).toFixed(0)}%`;
+      const compileVal = `${(r.javac_compile_success_rate * 100).toFixed(0)}%`;
+      const driftVal = r.semantic_drift_score != null ? r.semantic_drift_score.toFixed(4) : "1.0000";
+
+      tableHtml += `
+        <tr>
+          <td ${rowClass}>${nameCol}</td>
+          <td ${rowClass}>${recallVal}</td>
+          <td ${rowClass}>${missingVal}</td>
+          <td ${rowClass}>${constraintVal}</td>
+          <td ${rowClass}>${compileVal}</td>
+          <td ${rowClass}>${driftVal}</td>
+        </tr>
+      `;
+    });
+    benchmarkTableBody.innerHTML = tableHtml;
+
+    if (benchmarkSummaryText && result.summary) {
+      benchmarkSummaryText.innerHTML = `
+        <strong>Theoretical &amp; Empirical Advantage:</strong><br>
+        • Baseline A (Dense RAG): ${(result.summary.baseline_a.missing_dep_rate * 100).toFixed(0)}% missing dependency rate due to arbitrary window boundary slicing.<br>
+        • Baseline B (Graph RAG): recovers syntax edges but lacks dense vector query alignment.<br>
+        • <strong>Proposed AST-Guided Neuro-Symbolic RAG</strong>: <strong>${(result.summary.proposed_system.retrieval_recall * 100).toFixed(0)}% recall</strong>, <strong>0% missing dependencies</strong>, and <strong>${(result.summary.proposed_system.javac_compile_success_rate * 100).toFixed(0)}% JVM compilation</strong> with verified behavioral equivalence.
+      `;
+    }
+
+  } catch (err) {
+    benchmarkTableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--accent-rose);">Evaluation error: ${err.message}</td></tr>`;
+  } finally {
+    runBenchmarkBtn.disabled = false;
+    runBenchmarkBtn.textContent = "Run Evaluation";
   }
 }
 

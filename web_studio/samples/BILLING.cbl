@@ -6,7 +6,7 @@
       ******************************************************************
        DATA DIVISION.
        WORKING-STORAGE SECTION.
-       01  WS-CART-TOTAL        PIC 9(5)V99 VALUE 00100.00.
+       01  WS-CART-TOTAL        PIC 9(5)V99 VALUE 01000.00.
        01  WS-DISCOUNT-PCT      PIC 99      VALUE 10.
        01  WS-DISCOUNT-AMT      PIC 9(5)V99 VALUE 00000.00.
        01  WS-DISCOUNTED-TOTAL  PIC 9(5)V99 VALUE 00000.00.

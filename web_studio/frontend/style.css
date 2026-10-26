@@ -614,3 +614,240 @@ select, button, input[type="text"] {
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.3);
 }
+
+/* -------------------------------------------------------------
+   Extended Styles for LLM, Constraints, Drift & Evaluation
+   ------------------------------------------------------------- */
+
+/* Scrollable / Compact Tab Bar */
+.right-pane-tabs {
+  display: flex;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-tertiary);
+  scrollbar-width: none;
+}
+.right-pane-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.right-tab {
+  flex: 0 0 auto;
+  padding: 10px 12px;
+  white-space: nowrap;
+  text-align: center;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.right-tab.active {
+  color: #fff;
+  border-bottom-color: var(--accent-indigo);
+  background: rgba(99, 102, 241, 0.12);
+}
+
+/* Controls Grid */
+.control-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.control-group label {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.control-select, .control-input {
+  background: var(--bg-primary);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  padding: 7px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.control-select:focus, .control-input:focus {
+  border-color: var(--accent-indigo);
+}
+
+/* Score Bars & Compliance Gauges */
+.gauge-card {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  margin-bottom: 14px;
+}
+
+.gauge-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.gauge-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.gauge-val {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.score-bar-container {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.score-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-indigo), var(--accent-emerald));
+  border-radius: 9999px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Status Badges */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-pill.success {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--accent-emerald);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.status-pill.danger {
+  background: rgba(244, 63, 94, 0.15);
+  color: var(--accent-rose);
+  border: 1px solid rgba(244, 63, 94, 0.3);
+}
+
+.status-pill.warning {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--accent-amber);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+/* Comparative Dual Terminal */
+.dual-terminal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.terminal-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.terminal-col-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.terminal-col .terminal-view {
+  font-size: 11px;
+  height: 140px;
+}
+
+/* Tables (Token Drift & Evaluation Metrics) */
+.metrics-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11.5px;
+  margin-top: 8px;
+}
+
+.metrics-table th, .metrics-table td {
+  padding: 8px 10px;
+  border: 1px solid var(--border-color);
+  text-align: left;
+}
+
+.metrics-table th {
+  background: rgba(15, 23, 42, 0.8);
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 10.5px;
+}
+
+.metrics-table tr:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.metrics-table td.proposed-col {
+  background: rgba(16, 185, 129, 0.07);
+  font-weight: 600;
+  color: #34d399;
+}
+
+.token-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  margin-top: 6px;
+}
+
+.token-table th, .token-table td {
+  padding: 6px 8px;
+  border: 1px solid var(--border-color);
+  text-align: right;
+}
+
+.token-table th:first-child, .token-table td:first-child {
+  text-align: left;
+}
+
+.token-table th {
+  background: rgba(15, 23, 42, 0.8);
+  color: var(--text-dim);
+  font-size: 10px;
+}
+
+.badge-match {
+  color: var(--accent-emerald);
+  font-weight: 600;
+}
+
+.badge-diff {
+  color: var(--accent-rose);
+  font-weight: 600;
+}
+
