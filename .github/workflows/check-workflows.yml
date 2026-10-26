@@ -1,0 +1,28 @@
+name: Check workflow files
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Install actionlint
+        run: |
+          GOBIN=$(pwd) go install github.com/rhysd/actionlint/cmd/actionlint@latest
+      
+      - name: Run actionlint
+        run: |
+          ./actionlint
+
+      # Warns only: an upstream archival must not block an unrelated pull request.
+      - name: Check for archived actions
+        run: ./.github/check-archived-actions.sh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
