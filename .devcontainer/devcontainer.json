@@ -1,0 +1,17 @@
+{
+    "name": "AST-Guided Neuro-Symbolic Development",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "postCreateCommand": ".devcontainer/boot.sh && source ~/.bashrc",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "bitlang.cobol",
+                "ms-vscode.cpptools",
+                "vscjava.vscode-java-pack",
+                "daohong-emilio.yash"
+            ]
+        }
+    }
+}

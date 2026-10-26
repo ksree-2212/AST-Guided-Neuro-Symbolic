@@ -1,0 +1,6 @@
+#!/bin/bash
+set -e
+cd libcobj
+./gradlew spotlessCheck
+cd ../cobj
+./check-format

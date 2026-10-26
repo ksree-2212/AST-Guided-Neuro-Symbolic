@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AST-Guided Neuro-Symbolic Migration Studio | COBOL to Java</title>
+  <meta name="description" content="AST-Guided Neuro-Symbolic Retrieval-Augmented Generation Workbench for COBOL to Java Migration with interactive Abstract Syntax Tree and dependency graph.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="app-header">
+    <div class="brand-section">
+      <div class="logo-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+          <line x1="9" y1="22" x2="9" y2="12"></line>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <h1>AST-Guided Neuro-Symbolic Migration Studio</h1>
+        <p>COBOL-to-Java Modernization Workbench &bull; Dual-Memory Architecture</p>
+      </div>
+    </div>
+
+    <div class="header-badges">
+      <span class="badge badge-cyan">
+        <span class="pulse-dot"></span>
+        opensource COBOL 4J (Docker)
+      </span>
+      <span class="badge badge-emerald">
+        Tree-sitter / AST Graph
+      </span>
+    </div>
+
+    <div class="header-actions">
+      <!-- Sample Selector -->
+      <select id="sampleSelect" class="sample-select" title="Choose Sample COBOL Project">
+        <option value="">Loading samples...</option>
+      </select>
+
+      <!-- Upload Single File -->
+      <input type="file" id="fileUpload" accept=".cbl,.cob,.txt" style="display: none;" multiple>
+      <button class="btn btn-secondary" onclick="document.getElementById('fileUpload').click()" title="Upload single or multiple COBOL files">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Upload File(s)
+      </button>
+
+      <!-- Upload Entire Folder -->
+      <input type="file" id="folderUpload" webkitdirectory directory style="display: none;">
+      <button class="btn btn-secondary" onclick="document.getElementById('folderUpload').click()" title="Upload an entire COBOL project folder">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        Upload Folder
+      </button>
+
+      <!-- Compile & Run via Docker -->
+      <button id="compileRunBtn" class="btn btn-emerald" title="Compile with opensourcecobol4j and execute on JVM">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        Compile & Run
+      </button>
+    </div>
+  </header>
+
+  <!-- 3-Pane Workbench Layout -->
+  <main class="app-container">
+
+    <!-- Left Pane: Source Code & File Dropzone -->
+    <section class="left-pane">
+      <div class="pane-header">
+        <div class="pane-title">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          <span id="currentFileLabel">BILLING.cbl</span>
+        </div>
+        <div style="font-size: 11px; color: var(--text-dim);" id="nodeCountBadge">0 Chunks</div>
+      </div>
+
+      <!-- Dropzone -->
+      <div id="dropZone" class="upload-dropzone">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent-indigo)" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <p>Drop COBOL files or folder here</p>
+      </div>
+
+      <!-- Code Viewer / Editor -->
+      <div class="code-viewer-container">
+        <div style="padding: 6px 16px; font-size: 11px; color: var(--text-dim); background: #060911; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between;">
+          <span>COBOL SOURCE EDITOR</span>
+          <span style="font-style: italic;">Press Ctrl+S to re-parse</span>
+        </div>
+        <textarea id="codeEditor" class="code-editor" spellcheck="false" placeholder="Paste COBOL source code here..."></textarea>
+      </div>
+    </section>
+
+    <!-- Center Pane: Interactive Graph & AST Visualizer -->
+    <section class="center-pane">
+      <div class="graph-controls-bar">
+        <!-- View Mode Switcher -->
+        <div class="view-mode-tabs">
+          <button class="tab-btn active" data-mode="dependency">Dependency Graph</button>
+          <button class="tab-btn" data-mode="ast">Abstract Syntax Tree (AST)</button>
+          <button class="tab-btn" data-mode="dual">Dual-Memory View</button>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <span id="edgeCountBadge" style="font-size: 11px; color: var(--accent-blue); font-family: var(--font-mono);">0 Edges</span>
+          
+          <!-- Zoom & Pan Controls -->
+          <div class="graph-zoom-controls">
+            <button id="zoomInBtn" class="btn-icon" title="Zoom In">+</button>
+            <button id="zoomOutBtn" class="btn-icon" title="Zoom Out">&minus;</button>
+            <button id="zoomFitBtn" class="btn-icon" title="Reset View">&#x21bb;</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Interactive Canvas Container -->
+      <div class="graph-canvas-container">
+        <svg id="graphSvg"></svg>
+
+        <!-- Graph Legend -->
+        <div class="graph-legend">
+          <div class="legend-item">
+            <span class="legend-dot" style="background: #10b981;"></span>
+            <span>Functional Chunk (Paragraph / CALLS)</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot" style="background: #f59e0b;"></span>
+            <span>Data Dependency (WORKING-STORAGE)</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot" style="background: #38bdf8;"></span>
+            <span>Vector Search Match (Neuro Entry Point)</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot" style="background: #a855f7;"></span>
+            <span>AST Grammar Node (Program / Division)</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right Pane: Neuro-Symbolic RAG, Verification & Compiler Output -->
+    <section class="right-pane">
+      <!-- Query Box -->
+      <div class="rag-query-box">
+        <div style="font-size: 11px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase;">
+          Dual-Memory Migration Query
+        </div>
+        <div class="query-input-wrap">
+          <input type="text" id="ragQueryInput" class="query-input" value="compute total cost including tax" placeholder="e.g. compute total cost including tax">
+          <button id="runQueryBtn" class="query-run-btn">Run</button>
+        </div>
+        <div class="query-params">
+          <div class="param-item">
+            <span>Top-K:</span>
+            <strong>2</strong>
+          </div>
+          <div class="param-item">
+            <span>Graph Hops:</span>
+            <strong>2</strong>
+          </div>
+          <div class="param-item">
+            <span>Target:</span>
+            <strong>Java</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Navigation -->
+      <div class="right-pane-tabs">
+        <div class="right-tab active" data-tab="rag">Neuro-Symbolic RAG</div>
+        <div class="right-tab" data-tab="prompt">Constrained Prompt</div>
+        <div class="right-tab" data-tab="compiler">JVM Live Output</div>
+      </div>
+
+      <!-- Tab Content Area -->
+      <div class="right-content-scroll">
+
+        <!-- Tab 1: RAG Comparison -->
+        <div id="tabContentRag" style="display: flex; flex-direction: column; gap: 14px;">
+          <!-- Proposed AST-Guided RAG -->
+          <div id="astProposedCard" class="comparison-card proposed">
+            <div class="card-title-row">
+              <h4>AST-Guided Neuro-Symbolic RAG</h4>
+              <span class="badge badge-green">Complete</span>
+            </div>
+            <p style="font-size: 11px; color: var(--text-muted);">Run query to inspect recovered dependencies...</p>
+          </div>
+
+          <!-- Derived Constraints -->
+          <div id="structuralConstraintsList" style="background: rgba(15, 23, 42, 0.5); padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+          </div>
+
+          <!-- Baseline Standard RAG (Fixed 4-Line Chunks) -->
+          <div id="baselineCard" class="comparison-card baseline">
+            <div class="card-title-row">
+              <h4>Standard RAG Baseline (4-line Chunks)</h4>
+              <span class="badge badge-red">Severed & Incomplete</span>
+            </div>
+            <p style="font-size: 11px; color: var(--text-muted);">Run query to compare against naive chunking...</p>
+          </div>
+        </div>
+
+        <!-- Tab 2: Prompt Output -->
+        <div id="tabContentPrompt" style="display: none;">
+          <div style="font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px;">
+            STRUCTURE-CONSTRAINED LLM PROMPT (Section 4.5 & Appendix A)
+          </div>
+          <pre id="promptOutput" class="prompt-box">// Generated prompt will appear here after running query</pre>
+        </div>
+
+        <!-- Tab 3: Compiler Execution Terminal -->
+        <div id="tabContentCompiler" style="display: none;">
+          <div style="font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px;">
+            OPENSOURCE COBOL 4J COMPILATION & EXECUTION TERMINAL
+          </div>
+          <div id="terminalOutput" class="terminal-view">[READY] Click "Compile & Run" above to compile COBOL to Java bytecode and execute live on JVM.</div>
+
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 14px; margin-bottom: 8px;">
+            <div style="font-size: 12px; font-weight: 600; color: var(--text-muted);">
+              GENERATED JAVA CLASS (CobolRunnable)
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button id="copyJavaBtn" class="btn btn-secondary" style="padding: 3px 8px; font-size: 11px;">Copy Java</button>
+              <button id="downloadJavaBtn" class="btn btn-secondary" style="padding: 3px 8px; font-size: 11px;">Download .java</button>
+            </div>
+          </div>
+          <div id="persistedNotice" style="font-size: 11px; color: var(--accent-emerald); margin-bottom: 6px; display: none;"></div>
+          <pre id="generatedJavaOutput" class="prompt-box" style="max-height: 240px;">// Generated Java code will appear here after compilation</pre>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
